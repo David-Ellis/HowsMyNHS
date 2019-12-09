@@ -1,0 +1,109 @@
+body {
+  background: white;
+  text: black;
+}
+
+.maintitle{
+ margin-top: 80px;
+ font-size:50px;
+ font-family: Verdana, Geneva, sans-serif;
+ color: black;
+}
+
+a {
+ color: black;   
+}
+
+.subtitle{
+ margin-top:0px;
+ font-size:40px;
+ font-family: Verdana, Geneva, sans-serif;
+}
+
+#myInput {
+  background-image: url('icon.svg'); /* Add a search icon to input */
+  background-color: #768692;
+  font-family: Verdana, Geneva, sans-serif;
+  background-position: 10px 15px; /* Position the search icon */
+  background-size: 30px;
+  background-repeat: no-repeat; /* Do not repeat the icon image */
+  width: 70%; /* Full-width */
+  font-size: 30px; /* Increase font-size */
+  padding: 12px 20px 12px 40px; /* Add some padding */
+  border: 1px solid #ddd; /* Add a grey border */
+  margin-bottom: 12px; /* Add some space below the input */
+}
+
+#myUL {
+  /* Remove default list styling */
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#myUL li a {
+  font-family: Verdana, Geneva, sans-serif;
+  width: 70%; /* Full-width */
+  border: 1px solid #ddd; /* Add a border to all links */
+  margin-top: -1px; /* Prevent double borders */
+  background-color: #f6f6f6; /* Grey background color */
+  padding: 12px; /* Add some padding */
+  text-decoration: none; /* Remove default text underline */
+  font-size: 18px; /* Increase the font-size */
+  color: black; /* Add a black text color */
+  display: block; /* Make it into a block element to fill the whole list */
+}
+
+#myUL li a:hover:not(.header) {
+  background-color: #eee; /* Add a hover effect to all links, except for headers */
+}
+
+.box {
+  /*border-style: dotted;*/
+  margin:auto; 
+  overflow:auto;
+  float: center;
+  font-size: 25px;
+  width: 60%; 
+  font-family: Verdana, Geneva, sans-serif;
+}
+
+
+.column1 {
+  float: left;
+  text-align: right;
+  width: 29.5%;
+  padding:1px;
+  min-width:504px;
+ * /*border-style: dashed;*/
+}
+
+.column2 {
+  float: left;
+  text-align: left;
+  padding: 20px;
+  max-width: 504px;*/
+  min-width:300px;
+  overflow: auto;
+  /*border-style: solid;*/
+
+}
+
+#share-buttons img {
+width: 50px;
+padding: 5px;
+border: 0;
+box-shadow: 0;
+display: inline;
+text-decoration: none !important;
+border:0px !important;
+outline:none;
+border-width: 0px;
+outline-width:0px;
+border-bottom: none;
+}
+
+a img {
+	text-decoration: none;
+	border: 0 none;
+	}
