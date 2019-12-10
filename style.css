@@ -23,7 +23,7 @@ a {
 
 #myInput {
   background-image: url('icon.svg'); /* Add a search icon to input */
-  background-color: #768692;
+  background-color: #cccccc;
   font-family: Verdana, Geneva, sans-serif;
   background-position: 10px 15px; /* Position the search icon */
   background-size: 30px;
@@ -64,7 +64,7 @@ a {
   margin:auto; 
   overflow:auto;
   float: center;
-  font-size: 25px;
+  font-size: 20px;
   width: 60%; 
   font-family: Verdana, Geneva, sans-serif;
 }
