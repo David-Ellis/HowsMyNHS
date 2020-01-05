@@ -21,7 +21,7 @@
 <h1><center><a href="index.html">How's my <i><span style="color:#005EB8;">NHS</span></i>?</a></center></h1>
 </div>
 
-<div id="share-buttons" align="center" style="color:#ffffff;">
+<div id="share-buttons" align="center" style="color:#ffffff; margin-bottom: 30px;">
     
     <!-- Twitter -->
     <a href="https://twitter.com/share?url=https://howsmynhs.co.uk/&amp;text=How%20has%20YOUR%20NHS%20changed%20under%20the%20Tories?&amp;hashtags=GE2019" target="_blank"><img src="https://simplesharebuttons.com/images/somacro/twitter.png" alt="Twitter" /></a>
@@ -278,16 +278,24 @@
 
 <script>
 function myFunction() {
-    var input, filter, ul, li, a, i, txtValue;
-    input = document.getElementById("myInput");
+    // Declare variables
+    var input, filter, ul, li, a, i;
+    input = document.getElementById('myInput');
     filter = input.value.toUpperCase();
     ul = document.getElementById("myUL");
-    li = ul.getElementsByTagName("li");
+    li = ul.getElementsByTagName('li');
+
+    if(input.value.length == 0){
+        ul.style.display = "none";
+        return;
+    }else{
+        ul.style.display = "block";
+    }
+    // Loop through all list items, and hide those who don't match the search query
     for (i = 0; i < li.length; i++) {
         a = li[i].getElementsByTagName("a")[0];
-        txtValue = a.textContent || a.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            li[i].style.display = "";
+        if (a.innerHTML.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "block";
         } else {
             li[i].style.display = "none";
         }

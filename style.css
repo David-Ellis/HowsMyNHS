@@ -37,6 +37,7 @@ a {
 
 #myUL {
   /* Remove default list styling */
+  display: none;
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -102,7 +103,7 @@ outline:none;
 border-width: 0px;
 outline-width:0px;
 border-bottom: none;
-margin-bottom: 30px;
+margin-bottom: 0px;
 margin-top: 0px;
 }
 
