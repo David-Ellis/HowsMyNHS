@@ -30,9 +30,10 @@ a {
   background-repeat: no-repeat; /* Do not repeat the icon image */
   width: 70%; /* Full-width */
   font-size: 30px; /* Increase font-size */
-  padding: 12px 20px 12px 40px; /* Add some padding */
+  padding: 12px 20px 12px 50px; /* Add some padding */
   border: 1px solid #ddd; /* Add a grey border */
-  margin-bottom: 12px; /* Add some space below the input */
+  margin-bottom: 0px; /* Add some space below the input */
+  max-width:700px;
 }
 
 #myUL {
@@ -44,6 +45,7 @@ a {
 }
 
 #myUL li a {
+  max-width:700px;
   font-family: Verdana, Geneva, sans-serif;
   width: 70%; /* Full-width */
   border: 1px solid #ddd; /* Add a border to all links */
