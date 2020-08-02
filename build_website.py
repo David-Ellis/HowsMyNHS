@@ -111,6 +111,125 @@ def MakeHomepage(data):
     
     print("Done")
     
+def make_AnE_waiting_block(data, name):
+    NHSdata = np.load(data, allow_pickle=True)
+    names = NHSdata[0]
+    dates = dates2num(NHSdata[1])
+    attendance = NHSdata[2]
+    waiting = NHSdata[3]
+
+    i = np.where(names == name)[0][0]
+    
+    
+    if i == 0:
+        # Get figure path
+        figName = '_'.join(name.lower().split(' '))
+        path = "../figures/{}.png".format(figName)
+
+        imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
+
+        supTextHTML = u'''
+
+            <p>After nearly a decade of Conservative rule, in December over <b>500,000</b> more people were made to wait
+            <b>over four hours</b> to be seen at A&E than in 2011. That's an increase of over <b>900%</b>.
+            The number of people attending A&E, however, had only increased by less than 30%.<p>
+
+            {}
+
+            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
+            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
+
+            <p>Over the last few months this number has decreased dramatically. However, this is because the number of people attending
+            A&E has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</p>            
+            '''.format(imgHTML)
+
+        chunk = supTextHTML.format(imgHTML)
+        
+    elif sum(attendance[i,:] != '-')>=12:
+        # Get figure path
+        figName = '_'.join(name.lower().split(' '))
+        path = "../figures/{}.png".format(figName)
+        
+        imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
+
+        smoothWait = movingAverage(waiting[i,:][waiting[i,:] != '-'])
+        avAtt = np.mean(attendance[i,:][attendance[i,:] != '-'])
+        sampleDates = dates[waiting[i,:] != '-']
+        diff = smoothWait[0]-smoothWait[-1]
+        
+        if max(smoothWait) < 15 and avAtt<2000:
+            chunk = '''
+            <!--Minimal Change Hospital + less than 2000 monthy attendance-->
+
+            <p>It looks like things haven't changed much for your hospital! On average only {} people attend this A&E 
+            each month.</p>
+            <p>Unfortunately, things aren't so great for the rest of England. After nearly a decade of Conservative rule,
+            each month over <b>400,000</b> more people are made to wait <b>over four hours</b> to be seen at A&E than 
+            in {}.
+
+            {}
+
+            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
+            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
+
+            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</p>
+            '''.format(int(avAtt), int(round(min(sampleDates))), imgHTML)
+
+        elif max(smoothWait) < 15:
+            chunk = '''
+            <!--Minimal Change Hospital + more than 2000 monthy attendance-->
+
+            <p> It looks like things haven't changed much for your hospital!</p>
+            <p>Unfortunately, things aren't so great for the rest of England. After nearly a decade of Conservative rule,
+            each month over <b>400,000</b> more people are made to wait <b>over four hours</b> to be seen at A&E than in 2011.
+
+            {}
+
+            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
+            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
+
+            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</p>
+            '''.format(imgHTML)
+
+        elif avAtt>2000 and smoothWait[0]-smoothWait[-1]>100:
+            diff = smoothWait[0]-smoothWait[-1]
+            chunk = '''
+            <p>After nearly a decade of Conservative rule, on average, <b>{}</b> more people are being left to wait over 
+            four hours at A&E at <b>your</b> hospital than back in {}.</p>
+
+            {}
+
+            <p>And things are bad for the rest of England too. Each month over <b>400,000</b> more people are made to wait
+            <b>over four hours</b> to be seen at A&E than in 2011.
+
+            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
+            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
+
+            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</p>
+            '''.format(int(diff),int(np.floor(min(sampleDates))), imgHTML)
+        else:
+            #print(name)
+            chunk = '''
+            <p> The data show's that thing's have gotten worse in your hospital. With {} more people each month 
+             being forced to wait over 4 hours to be seen at A&E since {}. It many English hospitals, the situation is much
+             worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
+             to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
+
+             {}
+
+            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
+            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
+
+            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</p>
+            '''.format(int(diff), int(np.floor(min(sampleDates))), imgHTML)
+            
+    return chunk
+    
 def build_trust_pages(data):
     print("Building trust pages...", end = " ")
     # Load data
@@ -127,131 +246,20 @@ def build_trust_pages(data):
         if sum(mask)>12:
             pageExist = True
 
-        # print(i,name, pageExist)
-
-        if i == 0 and pageExist:
+        if pageExist:
             url_prefix = '_'.join(name.lower().split(' '))
             url = ''.join([url_prefix,".html"])
             file = open("hospitals/{}".format(url), "w")
-            figName = '_'.join(name.lower().split(' '))
-            path = "../figures/{}.png".format(figName)
+            
             #print("figures/{}.png".format(figName))
             subTitleHTML = '''<div class = \"box\">
-            \n<h2 class = \"subtitle\"><center>All of England</center></h2>\n'''
+            \n<h2 class = \"subtitle\"><center>{}</center></h2>\n'''.format(name)
 
-            imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
-
-            supTextHTML = u'''
-
-                <p>After nearly a decade of Conservative rule, in December over <b>500,000</b> more people were made to wait
-                <b>over four hours</b> to be seen at A&E than in 2011. That's an increase of over <b>900%</b>.
-                The number of people attending A&E, however, had only increased by less than 30%.<p>
-
-                {}
-
-                <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-                as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-                <p>Over the last few months this number has decreased dramatically. However, this is because the number of people attending
-                A&E has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-                during the current pandemic.</p>            
-
-                \n</div>'''.format(imgHTML)
-
+            supTextHTML = make_AnE_waiting_block(data, name) + "</div>\n"
 
             file.write(''.join([headHTML,subTitleHTML,supTextHTML,whatNextHTML,tailHTML]))
             file.close() 
-        elif sum(attendance[i,:] != '-')>=12 and pageExist:
-            url_prefix = '_'.join(name.lower().split(' '))
-            url = ''.join([url_prefix,".html"])
-            file = open("hospitals/{}".format(url), "w")
-            figName = '_'.join(name.lower().split(' '))
-            path = "../figures/{}.png".format(figName)
-            #print("figures/{}.png".format(figName))
-            subTitleHTML = '''\n<div class = \"box\">
-            <h2 class = \"subtitle\"><center>{}</center></h2>\n'''.format(name)
-
-            imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
-
-            smoothWait = movingAverage(waiting[i,:][waiting[i,:] != '-'])
-            avAtt = np.mean(attendance[i,:][attendance[i,:] != '-'])
-            sampleDates = dates[waiting[i,:] != '-']
-            if max(smoothWait) < 15 and avAtt<2000 and pageExist:
-                supTextHTML = '''
-                <!--Minimal Change Hospital + less than 2000 monthy attendance-->
-
-                <p>It looks like things haven't changed much for your hospital! On average only {} people attend this A&E 
-                each month.</p>
-                <p>Unfortunately, things aren't so great for the rest of England. After nearly a decade of Conservative rule,
-                each month over <b>400,000</b> more people are made to wait <b>over four hours</b> to be seen at A&E than 
-                in {}.
-
-                {}
-
-                <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-                as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-                <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-                during the current pandemic.</p>
-
-                \n</div>'''.format(int(avAtt), int(round(min(sampleDates))), imgHTML)
-
-            elif max(smoothWait) < 15 and pageExist:
-                supTextHTML = '''
-                <!--Minimal Change Hospital + more than 2000 monthy attendance-->
-
-                <p> It looks like things haven't changed much for your hospital!</p>
-                <p>Unfortunately, things aren't so great for the rest of England. After nearly a decade of Conservative rule,
-                each month over <b>400,000</b> more people are made to wait <b>over four hours</b> to be seen at A&E than in 2011.
-
-                {}
-
-                <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-                as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
-
-                <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-                during the current pandemic.</p>
-                \n</div>'''.format(imgHTML)
-
-            elif avAtt>2000 and smoothWait[0]-smoothWait[-1]>100 and pageExist:
-                diff = smoothWait[0]-smoothWait[-1]
-                supTextHTML = '''
-                <p>After nearly a decade of Conservative rule, on average, <b>{}</b> more people are being left to wait over 
-                four hours at A&E at <b>your</b> hospital than back in {}.</p>
-
-                {}
-
-                <p>And things are bad for the rest of England too. Each month over <b>400,000</b> more people are made to wait
-                <b>over four hours</b> to be seen at A&E than in 2011.
-
-                <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-                as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-                <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-                during the current pandemic.</p>
-                \n</div>'''.format(int(diff),int(np.floor(min(sampleDates))), imgHTML)
-            elif pageExist:
-                #print(name)
-                supTextHTML = '''
-                <p> The data show's that thing's have gotten worse in your hospital. With {} more people each month 
-                 being forced to wait over 4 hours to be seen at A&E since {}. It many English hospitals, the situation is much
-                 worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
-                 to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
-
-                 {}
-
-                <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-                as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-                <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-                during the current pandemic.</p>
-                \n</div>
-                '''.format(int(diff), int(np.floor(min(sampleDates))), imgHTML)
-
-
-
-            file.write(''.join([headHTML,subTitleHTML,supTextHTML,whatNextHTML,tailHTML]))
-            file.close() 
+        
     print("Done.")
     
 ####################################################################################################
@@ -259,6 +267,8 @@ def build_trust_pages(data):
 ####################################################################################################
 
 siteURL = "https://howsmynhs.co.uk/"
+
+###########################################   Home page   ########################################### 
 
 homeHTML1 = '''
 <html>
@@ -330,6 +340,8 @@ function myFunction() {
 </body>
 </html>
 ''' 
+
+###########################################  Trust pages  ########################################### 
 
 headHTML = '''
 <html>
