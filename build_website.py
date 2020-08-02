@@ -112,6 +112,10 @@ def MakeHomepage(data):
     print("Done")
     
 def make_AnE_waiting_block(data, name):
+    ''' Generates the chunk of HTML relating to the A&E waiting time data for NHS trust <name>.
+    
+    TODO: Turn big chunks of text into global variables defined below with the other text.
+    '''
     NHSdata = np.load(data, allow_pickle=True)
     names = NHSdata[0]
     dates = dates2num(NHSdata[1])
@@ -251,17 +255,50 @@ def build_trust_pages(data):
             url = ''.join([url_prefix,".html"])
             file = open("hospitals/{}".format(url), "w")
             
-            #print("figures/{}.png".format(figName))
-            subTitleHTML = '''<div class = \"box\">
+                        
+            subTitleHTML = '''
+            <div class = \"box\">
             \n<h2 class = \"subtitle\"><center>{}</center></h2>\n'''.format(name)
-
-            supTextHTML = make_AnE_waiting_block(data, name) + "</div>\n"
-
-            file.write(''.join([headHTML,subTitleHTML,supTextHTML,whatNextHTML,tailHTML]))
+            
+            tab_HTML = '''
+            <div class="tab">
+            <button class="tablinks" onclick="openCity(event, 'AnE')" id="defaultOpen">A&E Waiting Times</button>
+            </div>
+            '''
+            
+            supTextHTML = '''
+            <div id="AnE" class="tabcontent">''' + make_AnE_waiting_block(data, name) + "</div></div>\n"
+            
+            file.write(''.join([headHTML,subTitleHTML,tab_HTML,
+                                supTextHTML,whatNextHTML,tailHTML, tab_script]))
             file.close() 
         
     print("Done.")
     
+####################################################################################################
+###########################################  Website JS  ########################################### 
+####################################################################################################
+ 
+tab_script = '''\n
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>'''
+
 ####################################################################################################
 ########################################### Website Text ########################################### 
 ####################################################################################################
@@ -364,7 +401,7 @@ headHTML = '''
 </head>
 <body>
 <div class="maintitle">
-<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" /></a></center></h1>
+<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" width="392" height="230"/></a></center></h1>
 </div>'''
 
 tailHTML = '''

@@ -19,11 +19,17 @@
 </head>
 <body>
 <div class="maintitle">
-<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" /></a></center></h1>
-</div><div class = "box">
+<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" width="392" height="230"/></a></center></h1>
+</div>
+            <div class = "box">
             
 <h2 class = "subtitle"><center>Summerfield GP Surg & Urgent Care Centre</center></h2>
 
+            <div class="tab">
+            <button class="tablinks" onclick="openCity(event, 'AnE')" id="defaultOpen">A&E Waiting Times</button>
+            </div>
+            
+            <div id="AnE" class="tabcontent">
             <!--Minimal Change Hospital + more than 2000 monthy attendance-->
 
             <p> It looks like things haven't changed much for your hospital!</p>
@@ -37,7 +43,7 @@
 
             <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>
-            </div>
+            </div></div>
 
     </br>
     <div class ="box">
@@ -112,3 +118,22 @@
     
 </body>
 </html>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>

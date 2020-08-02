@@ -19,11 +19,17 @@
 </head>
 <body>
 <div class="maintitle">
-<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" /></a></center></h1>
-</div><div class = "box">
+<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" width="392" height="230"/></a></center></h1>
+</div>
+            <div class = "box">
             
 <h2 class = "subtitle"><center>England</center></h2>
 
+            <div class="tab">
+            <button class="tablinks" onclick="openCity(event, 'AnE')" id="defaultOpen">A&E Waiting Times</button>
+            </div>
+            
+            <div id="AnE" class="tabcontent">
 
             <p>After nearly a decade of Conservative rule, in December over <b>500,000</b> more people were made to wait
             <b>over four hours</b> to be seen at A&E than in 2011. That's an increase of over <b>900%</b>.
@@ -37,7 +43,7 @@
             <p>Over the last few months this number has decreased dramatically. However, this is because the number of people attending
             A&E has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>            
-            </div>
+            </div></div>
 
     </br>
     <div class ="box">
@@ -112,3 +118,22 @@
     
 </body>
 </html>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
