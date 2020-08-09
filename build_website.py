@@ -117,25 +117,48 @@ def plotBedData(data):
                 
     print("Done.")
     
-def MakeHomepage(data):
+def capitaliseFirst(string_list):
+    '''Capitalised the first letter of each word in each string in a list'''
+    
+    for i, string in enumerate(string_list):
+        words = string.split(" ")
+        words = [word[0].upper() + word[1:] for word in words]
+        string_list[i] = " ".join(words).replace("Nhs", "NHS")
+        
+    return string_list
+    
+def combineNames(names1, names2):
+    '''Makes a single list of each name appearing in either list'''
+    namesOut = names1
+    for name in names2:
+        if name not in names1:
+            namesOut = np.append(namesOut, name)
+    return namesOut
+
+def MakeHomepage(waiting_data, bed_data):
     print("Building homepage...", end = " ")
     
     # Load data
-    NHSdata = np.load(data, allow_pickle=True)
-    names = NHSdata[0]
-    dates = dates2num(NHSdata[1])
-    attendance = NHSdata[2]
-    waiting = NHSdata[3]
+    names1, _, _, waiting = np.load(waiting_data, allow_pickle=True)
+    names2, _, beds = np.load(bed_data, allow_pickle=True)
+    names2 = capitaliseFirst(names2)
+    
+    allNames = combineNames(names1, names2)
     
     # Make list of hospital names
     hospitalLinksList = []
-    for i, name in enumerate(names):
-            if type(name) == str:
-                mask = (waiting[i,:] != '-')
-                if sum(mask)>10:
-                    url_prefix = '_'.join(name.lower().split(' '))
-                    url = ''.join(["hospitals/",url_prefix,".html"])
-                    hospitalLinksList.append("<li><a href=\"{}\">{}</a></li>\n".format(url,name))
+    for i, name in enumerate(allNames):
+        if type(name) == str:
+            ane_points, bed_points = 0, 0
+            if name in names1:
+                ane_points = len(waiting[names1 == name][waiting[names1 == name] != '-'])
+            if name in names2:
+                bed_points = len(beds[names2 == name][beds[names2 == name] != '-'])
+            
+            if ane_points > 10 or bed_points> 4:
+                url_prefix = '_'.join(name.lower().split(' '))
+                url = ''.join(["hospitals/",url_prefix,".html"])
+                hospitalLinksList.append("<li><a href=\"{}\">{}</a></li>\n".format(url,name))
 
     hospitalLinks = ''.join(hospitalLinksList)
     file = open("index.html", "w") 
