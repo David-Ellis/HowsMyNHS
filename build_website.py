@@ -65,7 +65,7 @@ def plotWaitingData(data):
                 plt.savefig("figures/{}.png".format(figName))
                 plt.close()
                 
-            elif sum(mask)>10:
+            elif sum(mask)>=10:
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
                 fig = plt.figure(figsize=(7,5))
                 plt.plot(dates[mask], NumWaiting,'k.',lw=3,label="data")
@@ -103,7 +103,7 @@ def plotBedData(data):
         if type(name) == str:
             mask = (beds[i,:] != '-')
                   
-            if sum(mask)>4:
+            if sum(mask)>=4:
                 fig = plt.figure(figsize=(7,5))
                 plt.bar(dates[mask], beds[i,:][mask]*1e-3,lw=3, width = 0.2, align='center', 
                         alpha=1, color="#005EB8")
@@ -150,12 +150,14 @@ def MakeHomepage(waiting_data, bed_data):
     for i, name in enumerate(allNames):
         if type(name) == str:
             ane_points, bed_points = 0, 0
+            
             if name in names1:
                 ane_points = len(waiting[names1 == name][waiting[names1 == name] != '-'])
+                
             if name in names2:
                 bed_points = len(beds[names2 == name][beds[names2 == name] != '-'])
             
-            if ane_points > 10 or bed_points> 4:
+            if ane_points >= 10 or bed_points>= 4:
                 url_prefix = '_'.join(name.lower().split(' '))
                 url = ''.join(["hospitals/",url_prefix,".html"])
                 hospitalLinksList.append("<li><a href=\"{}\">{}</a></li>\n".format(url,name))
@@ -174,14 +176,9 @@ def make_AnE_waiting_block(data, name):
     
     TODO: Turn big chunks of text into global variables defined below with the other text.
     '''
-    NHSdata = np.load(data, allow_pickle=True)
-    names = NHSdata[0]
-    dates = dates2num(NHSdata[1])
-    attendance = NHSdata[2]
-    waiting = NHSdata[3]
-
+    names, dates, attendance, waiting = np.load(data, allow_pickle=True)
+    dates = dates2num(dates)
     i = np.where(names == name)[0][0]
-    
     
     if i == 0:
         # Get figure path
@@ -208,7 +205,7 @@ def make_AnE_waiting_block(data, name):
 
         chunk = supTextHTML.format(imgHTML)
         
-    elif sum(attendance[i,:] != '-')>=12:
+    elif sum(attendance[i,:] != '-')>=10:
         # Get figure path
         figName = '_'.join(name.lower().split(' '))
         path = "../figures/{}.png".format(figName)
@@ -217,6 +214,8 @@ def make_AnE_waiting_block(data, name):
 
         smoothWait = movingAverage(waiting[i,:][waiting[i,:] != '-'])
         avAtt = np.mean(attendance[i,:][attendance[i,:] != '-'])
+        #print(waiting[i,:] != '-')
+        #print(dates)
         sampleDates = dates[waiting[i,:] != '-']
         diff = smoothWait[0]-smoothWait[-1]
         
@@ -292,24 +291,47 @@ def make_AnE_waiting_block(data, name):
             
     return chunk
     
-def build_trust_pages(data):
+def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
+    '''Determins which HTML chunks are needed 
+    
+    Returns: Boolian array
+        - A&E Needed
+        - Beds Needed
+    '''
+    ane_block, bed_block = False, False
+    
+    # Check if A&E block is needed
+    if name in ane_names:
+        attendence = all_attendence[ane_names == name]
+        ane_points = len(attendence[attendence != "-"])
+        if ane_points >= 10:
+            ane_block = True
+            
+    # Check if Bed block is needed
+    if name in bed_names:
+        beds = all_beds[bed_names == name]
+        bed_points = len(beds[beds != "-"])
+        if bed_points >= 4:
+            bed_block = True
+            
+    return ane_block, bed_block
+    
+def build_trust_pages(waiting_data, beds_data):
     print("Building trust pages...", end = " ")
+    
     # Load data
-    NHSdata = np.load(data, allow_pickle=True)
-    names = NHSdata[0]
-    dates = dates2num(NHSdata[1])
-    attendance = NHSdata[2]
-    waiting = NHSdata[3]
-
-    for i, name in enumerate(names):
+    names1, dates, attendance, waiting = np.load(waiting_data, allow_pickle=True)
+    names2, dates, beds = np.load(beds_data, allow_pickle=True)
+    
+    names2 = capitaliseFirst(names2)
+    allNames = combineNames(names1, names2)
+   
+    for i, name in enumerate(allNames):
         
-        waiting_mask = (waiting[i,:] != '-')
-        AnEblock = False
+        AnEblock, bedblock = whichChunks(name, names1, names2, attendance, beds)
         
-        if sum(waiting_mask)>12:
-            AnEblock = True
-
-        if AnEblock:
+        if AnEblock or bedblock:
+            
             url_prefix = '_'.join(name.lower().split(' '))
             url = ''.join([url_prefix,".html"])
             file = open("hospitals/{}".format(url), "w")
@@ -319,16 +341,21 @@ def build_trust_pages(data):
             <div class = \"box\">
             \n<h2 class = \"subtitle\"><center>{}</center></h2>\n'''.format(name)
             
-            tab_HTML = '''
-            <div class="tab">
-            <button class="tablinks" onclick="openCity(event, 'AnE')" id="defaultOpen">A&E Waiting Times</button>
-            <button class="tablinks" onclick="openCity(event, 'test')" id="defaultOpen">Test</button>
-            </div>
-            '''
             
-            supTextHTML = '''
-            <div id="AnE" class="tabcontent">''' + make_AnE_waiting_block(data, name) + "</div>\n" + \
-            "<div id=\"test\" class=\"tabcontent\">Test</div></div>\n"
+            tab_HTML = '<div class="tab">' + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'AnE')\" id=\"defaultOpen\">A&E Waiting Times</button>"*AnEblock + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'beds')\" id=\"defaultOpen\">Number of Beds</button>"*bedblock + "</div>"
+            
+            
+            supTextHTML = ""
+            
+            if AnEblock:
+                supTextHTML += "<div id=\"AnE\" class=\"tabcontent\">" + make_AnE_waiting_block(waiting_data, name) + "</div>\n"
+            
+            if bedblock:
+                supTextHTML += "<div id=\"beds\" class=\"tabcontent\">" + "BED DATA HERE" + "</div>\n"
+                
+            supTextHTML += "</div>\n"
             
             file.write(''.join([headHTML,subTitleHTML,tab_HTML,
                                 supTextHTML,whatNextHTML,tailHTML, tab_script]))

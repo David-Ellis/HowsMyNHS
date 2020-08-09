@@ -1,0 +1,121 @@
+
+<html>
+<head>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-154345093-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-154345093-1');
+</script>
+
+
+<title>How's my NHS?</title>
+<link rel="stylesheet" type="text/css" href="../style.css">
+
+</head>
+<body>
+<div class="maintitle">
+<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" width="392" height="230"/></a></center></h1>
+</div>
+            <div class = "box">
+            
+<h2 class = "subtitle"><center>The Royal Orthopaedic Hospital NHS Foundation Trust</center></h2>
+<div class="tab"><button class="tablinks" onclick="openCity(event, 'beds')" id="defaultOpen">Number of Beds</button></div><div id="beds" class="tabcontent">BED DATA HERE</div>
+</div>
+
+    </br>
+    <div class ="box">
+    <h2 class = "subtitle"><center>What Next?</center></h2>
+
+    
+    <p><b style="color:#005EB8;">Prevent the spread:</b> With the outbreak of the Coronavirus (COVID-19)
+    the NHS is under more pressure than ever. We <b>need</b> to do everything we can to slow its
+    spread. Follow the official government guidance: 
+    <ul>
+    <li>Stay at home as much as possible</li>
+    <li>Work from home if you can</li>
+    <li>Limit contact with other people</li>
+    <li>Keep your distance from people not in your household (2 metres apart where possible)</li>
+    <li>Wash your hands regularly</li>
+    
+    </ul>
+    Many young people experience few to no symptoms at all but can still carry the virus and pass 
+    it on to those who are more vulnerable.
+    </p>
+    <p>
+    Stay informed with reliable sources such as the governments 
+    <a href="https://www.gov.uk/coronavirus" target="_blank">offical Coronavirus page</a>.
+    </p> 
+
+    <p><b style="color:#005EB8;">Share the message:</b> Fight for change. Let your friends and family know that the Conservatives 
+    are not the party for the NHS. One vote may have little impact, particularly with our broken electoral system. 
+    But together we can bring about great change.</p> 
+
+<div id="share-buttons" align="center" style="color:#ffffff;">
+    
+    <!-- Twitter -->
+    <a href="https://twitter.com/share?url=https://howsmynhs.co.uk/&amp;text=How%20has%20YOUR%20NHS%20changed%20under%20the%20Tories?&amp;hashtags=NHS"target="_blank">
+    <img src="https://simplesharebuttons.com/images/somacro/twitter.png" alt="Twitter" /></a>
+    
+    <!-- Email -->
+    <a href="mailto:?Subject=Simple Share Buttons&amp;Body=How%20has%20YOUR%20NHS%20changed%20under%20the%20Tories?%20 https://howsmynhs.co.uk/">
+    <img src="https://simplesharebuttons.com/images/somacro/email.png" alt="Email" /></a>
+ 
+    <!-- Facebook -->
+    <a href="http://www.facebook.com/sharer.php?u=https://howsmynhs.co.uk/" target="_blank">
+    <img src="https://simplesharebuttons.com/images/somacro/facebook.png" alt="Facebook" /></a>
+    
+    <!-- Reddit -->
+    <a href="http://reddit.com/submit?url=https://howsmynhs.co.uk/&amp;title=How has your NHS changed under the Tories?" target="_blank">
+    <img src="https://simplesharebuttons.com/images/somacro/reddit.png" alt="Reddit" /></a>
+
+    <!-- Tumblr-->
+    <a href="http://www.tumblr.com/share/link?url=https://howsmynhs.co.uk/.com&amp;title=Simple Share Buttons" target="_blank">
+    <img src="https://simplesharebuttons.com/images/somacro/tumblr.png" alt="Tumblr" /></a>
+    
+    <!-- LinkedIn -->
+    <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://howsmynhs.co.uk/" target="_blank">
+    <img src="https://simplesharebuttons.com/images/somacro/linkedin.png" alt="LinkedIn" /></a>
+    
+   <! -- Share buttons from: https://simplesharebuttons.com/html-share-buttons/ --!>
+</div>
+
+    <p><b style="color:#005EB8;">Email your MP:</b> Enter your postcode 
+    <a href="https://members.parliament.uk/" target="_blank">here</a>.
+    to find the email address for your local MP. Send them this graph of 
+    how <b>your</b> local A&E has changed and urge them to use their power to
+    protect it from further damage and to restore our NHS to it's former 
+    glory.
+    </p>
+
+    <p><b style="color:#005EB8;">Use this data:</b> All of the data presented here, as well as the code used to collect it, is <a href="https://github.com/David-Ellis/NHSdata" target="_blank"> freely availble via github</a>. 
+    You don't need to cite us. This is all publically available data from <a href="https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/" target="_blank">NHS England</a>. 
+    </p>    
+    
+    </br></br></br></br></br></br></br></br>
+    
+</body>
+</html>
+
+<script>
+function openCity(evt, cityName) {
+  var i, tabcontent, tablinks;
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>
