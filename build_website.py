@@ -82,6 +82,41 @@ def plotWaitingData(data):
                 
     print("Done.")
     
+def plotBedData(data):
+    ''' Plot the number of beds at NHS England Trusts'''
+    
+    print("Generating graphs for the number of beds ...", end = " ")
+    
+    # Load data
+    NHSdata = np.load(data, allow_pickle=True)
+    
+    names, dates, beds = NHSdata
+    
+    import matplotlib
+    matplotlib.rcParams['mathtext.fontset'] = 'stix'
+    matplotlib.rcParams['font.family'] = 'sans-serif'
+    matplotlib.rc('font', size=20)
+
+    # Plot and save the data
+
+    for i, name in enumerate(names[:]):
+        if type(name) == str:
+            mask = (beds[i,:] != '-')
+                  
+            if sum(mask)>4:
+                fig = plt.figure(figsize=(7,5))
+                plt.bar(dates[mask], beds[i,:][mask]*1e-3,lw=3, width = 0.2, align='center', 
+                        alpha=1, color="#005EB8")
+                plt.ylabel("Total Number of Available Beds\n(Thousands)")
+                
+                plt.ylim(0.98*min(beds[i,:][mask])*1e-3, 1.01*max(beds[i,:][mask])*1e-3)
+                figName = '_'.join(name.lower().split(' '))
+                plt.tight_layout()
+                plt.savefig("figures/{}_beds.png".format(figName))
+                plt.close()
+                
+    print("Done.")
+    
 def MakeHomepage(data):
     print("Building homepage...", end = " ")
     
@@ -244,13 +279,14 @@ def build_trust_pages(data):
     waiting = NHSdata[3]
 
     for i, name in enumerate(names):
-        mask = (waiting[i,:] != '-')
+        
+        waiting_mask = (waiting[i,:] != '-')
+        AnEblock = False
+        
+        if sum(waiting_mask)>12:
+            AnEblock = True
 
-        pageExist = False
-        if sum(mask)>12:
-            pageExist = True
-
-        if pageExist:
+        if AnEblock:
             url_prefix = '_'.join(name.lower().split(' '))
             url = ''.join([url_prefix,".html"])
             file = open("hospitals/{}".format(url), "w")
@@ -263,11 +299,13 @@ def build_trust_pages(data):
             tab_HTML = '''
             <div class="tab">
             <button class="tablinks" onclick="openCity(event, 'AnE')" id="defaultOpen">A&E Waiting Times</button>
+            <button class="tablinks" onclick="openCity(event, 'test')" id="defaultOpen">Test</button>
             </div>
             '''
             
             supTextHTML = '''
-            <div id="AnE" class="tabcontent">''' + make_AnE_waiting_block(data, name) + "</div></div>\n"
+            <div id="AnE" class="tabcontent">''' + make_AnE_waiting_block(data, name) + "</div>\n" + \
+            "<div id=\"test\" class=\"tabcontent\">Test</div></div>\n"
             
             file.write(''.join([headHTML,subTitleHTML,tab_HTML,
                                 supTextHTML,whatNextHTML,tailHTML, tab_script]))
