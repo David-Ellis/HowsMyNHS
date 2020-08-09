@@ -107,7 +107,7 @@ def plotBedData(data):
                 fig = plt.figure(figsize=(7,5))
                 plt.bar(dates[mask], beds[i,:][mask]*1e-3,lw=3, width = 0.2, align='center', 
                         alpha=1, color="#005EB8")
-                plt.ylabel("Total Number of Available Beds\n(Thousands)")
+                plt.ylabel("Total # of Available Beds\n(Thousands)")
                 
                 plt.ylim(0.98*min(beds[i,:][mask])*1e-3, 1.01*max(beds[i,:][mask])*1e-3)
                 figName = '_'.join(name.lower().split(' '))
@@ -201,7 +201,7 @@ def make_AnE_waiting_block(data, name):
             <p>Over the last few months this number has decreased dramatically. However, this is because the number of people attending
             A&E has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>            
-            '''.format(imgHTML)
+            '''
 
         chunk = supTextHTML.format(imgHTML)
         
@@ -291,6 +291,46 @@ def make_AnE_waiting_block(data, name):
             
     return chunk
     
+def make_bed_block(beds_data, name):
+    ''' Generates the chunk of HTML relating to the A&E waiting time data for NHS trust <name>.
+    
+    TODO: Turn big chunks of text into global variables defined below with the other text.
+    '''
+    names, dates,  beds = np.load(beds_data, allow_pickle=True)
+    names = capitaliseFirst(names)
+    
+    i = np.where(names == name)[0]
+    
+    figName = '_'.join(name.lower().split(' '))
+    path = "../figures/{}_beds.png".format(figName)
+    imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
+    
+    if i == 0:
+        # Get figure path
+        supTextHTML = u'''
+
+            <p>All of Englands beds here.<p>
+
+            {}
+            
+            </p>            
+            '''
+
+        chunk = supTextHTML.format(imgHTML)
+        
+    else:
+        supTextHTML = u'''
+
+            <p>Bed data here.<p>
+
+            {}
+            
+            </p>            
+            '''
+        chunk = supTextHTML.format(imgHTML)
+        
+    return chunk   
+
 def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
     '''Determins which HTML chunks are needed 
     
@@ -353,7 +393,7 @@ def build_trust_pages(waiting_data, beds_data):
                 supTextHTML += "<div id=\"AnE\" class=\"tabcontent\">" + make_AnE_waiting_block(waiting_data, name) + "</div>\n"
             
             if bedblock:
-                supTextHTML += "<div id=\"beds\" class=\"tabcontent\">" + "BED DATA HERE" + "</div>\n"
+                supTextHTML += "<div id=\"beds\" class=\"tabcontent\">" + make_bed_block(beds_data, name) + "</div>\n"
                 
             supTextHTML += "</div>\n"
             
