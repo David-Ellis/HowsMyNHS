@@ -234,7 +234,7 @@ def make_AnE_waiting_block(data, name):
             <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
             as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
 
-            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>
             '''.format(int(avAtt), int(round(min(sampleDates))), imgHTML)
 
@@ -251,11 +251,11 @@ def make_AnE_waiting_block(data, name):
             <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
             as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
 
-            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>
             '''.format(imgHTML)
 
-        elif avAtt>2000 and smoothWait[0]-smoothWait[-1]>100:
+        elif avAtt>2000 and diff > 100:
             diff = smoothWait[0]-smoothWait[-1]
             chunk = '''
             <p>After nearly a decade of Conservative rule, on average, <b>{}</b> more people are being left to wait over 
@@ -269,9 +269,25 @@ def make_AnE_waiting_block(data, name):
             <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
             as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
 
-            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>
             '''.format(int(diff),int(np.floor(min(sampleDates))), imgHTML)
+        elif diff < 100:
+            #print(name)
+            chunk = '''
+            <p> The data show's that, for this trust, on average {} fewer people are waiting over four hours to be seen at A&E than in {}. It many English hospitals, the situation is much worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
+             to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
+
+            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</p>
+
+             {}
+
+            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
+            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
+
+
+            '''.format(abs(int(diff)), int(np.floor(min(sampleDates))), imgHTML)
         else:
             #print(name)
             chunk = '''
@@ -285,9 +301,10 @@ def make_AnE_waiting_block(data, name):
             <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
             as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
 
-            <p>Note: Over the past three months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</p>
             '''.format(int(diff), int(np.floor(min(sampleDates))), imgHTML)
+            
             
     return chunk
     
@@ -305,6 +322,10 @@ def make_bed_block(beds_data, name):
     path = "../figures/{}_beds.png".format(figName)
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
     
+    # Calculate fractional change
+    mask = (beds[i] != "-")
+    change = (beds[i][mask][0] - beds[i][mask][-1])/beds[i][mask][-1]
+    
     if i == 0:
         # Get figure path
         supTextHTML = u'''
@@ -318,16 +339,40 @@ def make_bed_block(beds_data, name):
 
         chunk = supTextHTML.format(imgHTML)
         
-    else:
+    elif change < -0.05:
         supTextHTML = u'''
 
-            <p>Bed data here.<p>
+            <p>Things are worse. Change = {}.<p>
 
             {}
             
             </p>            
             '''
-        chunk = supTextHTML.format(imgHTML)
+        
+        chunk = supTextHTML.format(change, imgHTML)
+    
+    elif change > 0.05:
+        supTextHTML = u'''
+
+            <p>Things are better. Change = {}.<p>
+
+            {}
+            
+            </p>            
+            '''
+        
+        chunk = supTextHTML.format(change, imgHTML)
+    
+    else:
+        supTextHTML = u'''
+
+            <p>Not much change. Change = {}.<p>
+
+            {}
+            
+            </p>            
+            '''
+        chunk = supTextHTML.format(change, imgHTML)
         
     return chunk   
 
