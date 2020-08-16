@@ -119,19 +119,19 @@ a {
 }
 
 #share-buttons img {
-width: 50px;
-padding: 5px;
-border: 0;
-box-shadow: 0;
-display: inline;
-text-decoration: none !important;
-border:0px !important;
-outline:none;
-border-width: 0px;
-outline-width:0px;
-border-bottom: none;
-margin-bottom: 0px;
-margin-top: 0px;
+    width: 50px;
+    padding: 5px;
+    border: 0;
+    box-shadow: 0;
+    display: inline;
+    text-decoration: none !important;
+    border:0px !important;
+    outline:none;
+    border-width: 0px;
+    outline-width:0px;
+    border-bottom: none;
+    margin-bottom: 0px;
+    margin-top: 0px;
 }
 
 a img {
@@ -177,6 +177,39 @@ a img {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
+}
+
+.action{
+    margin: auto;
+    text-align: center;
+    background-color: #005EB8; /* NHS Blue */
+    color: white;
+    padding: 12px 20px;
+    width: 180px;
+    font-size:25px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.action:hover{
+    margin: auto;
+    text-align: center;
+    background-color: #000099; 
+    color: white;
+    padding: 12px 20px;
+    width: 180px;
+    font-size:25px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.actioncontent {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
 }
 
 /* ######################################## */
