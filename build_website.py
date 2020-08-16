@@ -23,6 +23,16 @@ def movingAverage(data, N=3):
             moving_aves.append(moving_ave)
     return moving_aves
 
+def format_number(num):
+    '''rounds number to nearest hundred and adds commas'''
+    if num > 100:
+        num = int(np.round(num / 100.0)) * 100
+        out = "{:,}".format(num)
+    else:
+        out = "{}".format(num)
+    return out
+
+
 ################## Generate Plots ##################
 
 def plotWaitingData(data):
@@ -195,15 +205,11 @@ def make_AnE_waiting_block(data, name):
 
             {}
 
-            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-            <p>Over the last few months this number has decreased dramatically. However, this is because the number of people attending
-            A&E has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-            during the current pandemic.</p>            
+            {}
+                  
             '''
 
-        chunk = supTextHTML.format(imgHTML)
+        chunk = supTextHTML.format(imgHTML, brexit_et_al)
         
     elif sum(attendance[i,:] != '-')>=10:
         # Get figure path
@@ -231,12 +237,9 @@ def make_AnE_waiting_block(data, name):
 
             {}
 
-            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-            during the current pandemic.</p>
-            '''.format(int(avAtt), int(round(min(sampleDates))), imgHTML)
+            {}
+            
+            '''.format(int(avAtt), int(round(min(sampleDates))), imgHTML, brexit_et_al)
 
         elif max(smoothWait) < 15:
             chunk = '''
@@ -248,12 +251,9 @@ def make_AnE_waiting_block(data, name):
 
             {}
 
-            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
+            {}
 
-            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-            during the current pandemic.</p>
-            '''.format(imgHTML)
+            '''.format(imgHTML, brexit_et_al)
 
         elif avAtt>2000 and diff > 100:
             diff = smoothWait[0]-smoothWait[-1]
@@ -266,28 +266,19 @@ def make_AnE_waiting_block(data, name):
             <p>And things are bad for the rest of England too. Each month over <b>400,000</b> more people are made to wait
             <b>over four hours</b> to be seen at A&E than in 2011.
 
-            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-            during the current pandemic.</p>
-            '''.format(int(diff),int(np.floor(min(sampleDates))), imgHTML)
+            {}
+            
+            '''.format(int(diff),int(np.floor(min(sampleDates))), imgHTML, brexit_et_al)
         elif diff < 100:
             #print(name)
             chunk = '''
-            <p> The data show's that, for this trust, on average {} fewer people are waiting over four hours to be seen at A&E than in {}. It many English hospitals, the situation is much worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
-             to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
-
-            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-            during the current pandemic.</p>
+            <p> The data show's that, for this trust, on average {} fewer people are waiting over four hours to be seen at A&E than in {}. It many English hospitals, the situation is much worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
 
              {}
 
-            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
+             {}
 
-
-            '''.format(abs(int(diff)), int(np.floor(min(sampleDates))), imgHTML)
+            '''.format(abs(int(diff)), int(np.floor(min(sampleDates))), imgHTML, brexit_et_al)
         else:
             #print(name)
             chunk = '''
@@ -298,12 +289,9 @@ def make_AnE_waiting_block(data, name):
 
              {}
 
-            <p>Now, Brexit and a trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much 
-            as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on</p>
-
-            <p>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
-            during the current pandemic.</p>
-            '''.format(int(diff), int(np.floor(min(sampleDates))), imgHTML)
+             {}
+            
+            '''.format(int(diff), int(np.floor(min(sampleDates))), imgHTML, brexit_et_al)
             
             
     return chunk
@@ -314,6 +302,7 @@ def make_bed_block(beds_data, name):
     TODO: Turn big chunks of text into global variables defined below with the other text.
     '''
     names, dates,  beds = np.load(beds_data, allow_pickle=True)
+    
     names = capitaliseFirst(names)
     
     i = np.where(names == name)[0]
@@ -323,56 +312,49 @@ def make_bed_block(beds_data, name):
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
     
     # Calculate fractional change
-    mask = (beds[i] != "-")
-    change = (beds[i][mask][0] - beds[i][mask][-1])/beds[i][mask][-1]
+    mask = beds[i][0] != "-"
+    num_change = beds[i][0][mask][0] - beds[i][0][mask][-1]
+    change = num_change/beds[i][0][mask][-1]
+    
+    #print("beds=", beds[i])
+    #print(len(dates), len(mask))
     
     if i == 0:
-        # Get figure path
-        supTextHTML = u'''
 
-            <p>All of Englands beds here.<p>
-
-            {}
-            
-            </p>            
-            '''
-
-        chunk = supTextHTML.format(imgHTML)
+        chunk = england_beds.format(format_number(-num_change), format_number(-num_change), imgHTML, brexit_et_al)
         
-    elif change < -0.05:
-        supTextHTML = u'''
-
-            <p>Things are worse. Change = {}.<p>
-
-            {}
-            
-            </p>            
-            '''
+    elif change < -0.05 and change > -1:
+        start_date = int(np.floor(dates[mask][-1]))
+        percentage_change = abs(change)*100
+       
+        chunk = beds_worse.format(name, format_number(-num_change), start_date, percentage_change, imgHTML, brexit_et_al)
         
-        chunk = supTextHTML.format(change, imgHTML)
-    
+    elif change == -1:
+        # All of the beds are gone
+        start_date = int(np.floor(dates[mask][-1]))
+        chunk = beds_all_gone.format(name, format_number(-num_change), start_date, imgHTML, brexit_et_al)
     elif change > 0.05:
-        supTextHTML = u'''
-
-            <p>Things are better. Change = {}.<p>
-
-            {}
-            
-            </p>            
-            '''
-        
-        chunk = supTextHTML.format(change, imgHTML)
-    
+        # Things are better
+        start_date = int(np.floor(dates[mask][-1]))
+        chunk = beds_better.format(name, start_date, format_number(num_change), imgHTML, brexit_et_al)
+   
     else:
-        supTextHTML = u'''
-
-            <p>Not much change. Change = {}.<p>
-
-            {}
-            
-            </p>            
-            '''
-        chunk = supTextHTML.format(change, imgHTML)
+        # Not much change
+        #print(name)
+        
+        start_date = int(np.floor(dates[mask][-1]))
+        
+        if num_change>1:
+            more_or_less = "{} more beds".format(format_number(abs(num_change)))
+        elif num_change == 1:
+            more_or_less = "exactly 1 more bed"
+        elif num_change<-1:
+            more_or_less = "{} fewer beds".format(format_number(abs(num_change)))
+        elif num_change==-1:
+            more_or_less = "exactly 1 less bed"
+        else:
+            more_or_less = "exactly the same number of beds"
+        chunk = beds_little_change.format(name, more_or_less, start_date, imgHTML, brexit_et_al)
         
     return chunk   
 
@@ -551,7 +533,9 @@ function myFunction() {
 </html>
 ''' 
 
-###########################################  Trust pages  ########################################### 
+#####################################################################################################
+######################################  Trust pages text ############################################
+#####################################################################################################
 
 headHTML = '''
 <html>
@@ -653,12 +637,73 @@ whatNextHTML = '''
     </br></br></br></br></br></br></br></br>
     '''
 
+brexit_et_al = '''<p>Now, Brexit and an impending trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
 
+            <p><i>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
+            during the current pandemic.</i></p>'''
 
+####################################### Number of Beds Text #########################################
 
+england_beds = u'''
 
+            <p>Since the Conservatives came to power in 2010, there are {} fewer NHS beds in England. That's {} fewer beds for those that who might need them. That's a decrease of over 10%. <p>
 
+            {}
+            
+            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more.</p>
+            
+            <center><img src=\"..\BedsPieChart.png\" alt=\"Beds Pie Chart\"></center>
+            
+            {}
+                        
+            '''
 
+beds_worse = u'''
+            <p>Under Conservative leadership, {} has around {} fewer beds than in {}. That's a {:.3}% drop in the number of beds for those who might desperately need them.<p>
 
+            {}
+            
+            <p>Unfortunatly, similar things are being seen accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            
+            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            
+            {}
+            '''
+
+beds_all_gone = u'''
+            <p>Under Conservative leadership, {} has lost all {} of the beds it had in {}. This trust is no longer able to provide any beds for those that might need them.<p>
+
+            {}
+            
+            <p>Unfortunatly, similar things are being seen accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            
+            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            
+            {}
+            '''
+
+beds_better = u'''
+            <p> {} is one of the lucky 25% of NHS England trusts which, under Conservative leadership, has more beds than in {}. With an increase of around {} beds.<p>
+
+            {}
+            
+            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            
+            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            
+            {}
+           '''
+
+beds_little_change = u'''
+            <p> For better or for worse, the number of beds owned by {} hasn't changed much. Under Conservative leadership, the trust has {} than in {}.<p>
+
+            {}
+            
+            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            
+            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            
+            {}
+           '''
 
 
