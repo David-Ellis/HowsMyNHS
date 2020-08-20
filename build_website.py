@@ -4,6 +4,9 @@ Module for building the HowsMyNHS website
 import numpy as np
 import matplotlib.pyplot as plt
 
+str2num = np.vectorize(float)
+intvec = np.vectorize(int)
+
 def dates2num(dates_in):
     dates_out = []
     for period in dates_in:
@@ -32,9 +35,84 @@ def format_number(num):
         out = "{}".format(num)
     return out
 
+def get_names(data_file, output = False):
+    NHSdata = np.load(data_file, allow_pickle=True)
+    names, _, _, _ = NHSdata
+    if output:
+        for name in names:
+            print(name)
+    return names
 
-################## Generate Plots ##################
+########################## Generate Plots ###########################
 
+def make_label(name):
+    words = np.asarray(name.split(" "))
+    #print(np.asarray(words) == "Hospital")
+    final_word = np.where(words == "Hospital")[0][0]
+    words = words[0:final_word]
+    label = ' '.join(words)
+    return label
+
+# Merged trusts
+mergered_trusts = {
+    "Bedfordshire Hospitals NHS Foundation Trust": \
+        ['Bedford Hospital NHS Trust',
+         'Luton And Dunstable University Hospital NHS Foundation Trust',
+         'Luton And Dunstable Hospital NHS Foundation Trust']
+}
+
+def makeMergedTrustWaitingPlot(name, NHSdata):
+    names, dates, _, waiting = NHSdata
+    dates = dates2num(dates)
+    
+    fig = plt.figure(figsize=(7,5))
+    ax = fig.add_subplot(111)
+    yrange = [0,100]; xrange = [2020,2020]
+    
+    # plot main data
+    i = np.where(names == name)[0][0]
+    mask = (waiting[i,:] != '-')
+    if len(waiting[i,:][mask])>0:
+        NumWaiting = intvec(str2num(waiting[i,:][mask]))
+        ax.plot(dates[mask], NumWaiting/1e6,'k.',lw=3)
+        
+        ax.plot(movingAverage(dates[mask]), movingAverage(NumWaiting),
+                 'k-',lw=2)
+        yrange[1] = 1.1*max(NumWaiting)
+        xrange[0] = min(dates[mask])-1/12
+        
+    old_colours = ["tab:orange", "tab:green", "tab:red"]
+    for j, old_trust in enumerate(mergered_trusts[name]):
+        index = np.where(names == old_trust)[0]
+        
+        OldMask = waiting[index,:] != '-'
+        print(len(dates), len(OldMask[0]))
+        print(OldMask[0])
+        print(dates[OldMask[0]])
+        OldWaiting = intvec(str2num(waiting[index,:][OldMask]))
+        print(len(OldWaiting), OldWaiting)
+        ax.plot(dates[OldMask[0]], OldWaiting,'.',lw=3,
+                 color = old_colours[j], label = make_label(old_trust))
+        ax.plot(movingAverage(dates[OldMask[0]]), 
+                 movingAverage(OldWaiting),
+                 '-',lw=2, color = old_colours[j])
+        
+        # if max waiting nunber more than current range, extend 
+        # the range
+        yrange[1] = max(yrange[1],  1.1*max(OldWaiting))
+        # if min date is lower than current range, reduce the 
+        # minimum
+        xrange[0] = min(xrange[0], min(dates[OldMask[0]])-1/12)
+    
+    ax.set_ylabel("Number of people\n waiting over 4 hours")
+    ax.plot(0,0,"k-", label = "3 month average")
+    ax.set_xlim(xrange)
+    ax.set_ylim(yrange)
+    ax.legend(prop = {"size":14})
+    fig.tight_layout()
+    
+    return fig
+    
 def plotWaitingData(data):
     ''' Plot data NHS England A&E 4 hour waiting data'''
     
@@ -43,13 +121,10 @@ def plotWaitingData(data):
     # Load data
     NHSdata = np.load(data, allow_pickle=True)
     
-    names = NHSdata[0]
-    dates = dates2num(NHSdata[1])
-    attendance = NHSdata[2]
-    waiting = NHSdata[3]
+    names, dates, _, waiting = NHSdata
+    dates = dates2num(dates)
     
-    str2num = np.vectorize(float)
-    intvec = np.vectorize(int)
+
     import matplotlib
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
     matplotlib.rcParams['font.family'] = 'sans-serif'
@@ -74,6 +149,15 @@ def plotWaitingData(data):
                 plt.tight_layout()
                 plt.savefig("figures/{}.png".format(figName))
                 plt.close()
+                
+            elif name in mergered_trusts.keys():
+                print("Merged Trust!!")
+                
+                fig = makeMergedTrustWaitingPlot(name, NHSdata)
+                
+                plt.savefig("figures/{}.png".format(figName))
+                plt.close()
+                
                 
             elif sum(mask)>=10:
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
@@ -160,6 +244,7 @@ def MakeHomepage(waiting_data, bed_data):
     for i, name in enumerate(allNames):
         if type(name) == str:
             ane_points, bed_points = 0, 0
+            merged = name in mergered_trusts.keys()
             
             if name in names1:
                 ane_points = len(waiting[names1 == name][waiting[names1 == name] != '-'])
@@ -167,7 +252,7 @@ def MakeHomepage(waiting_data, bed_data):
             if name in names2:
                 bed_points = len(beds[names2 == name][beds[names2 == name] != '-'])
             
-            if ane_points >= 10 or bed_points>= 4:
+            if ane_points >= 10 or bed_points>= 4 or merged:
                 url_prefix = '_'.join(name.lower().split(' '))
                 url = ''.join(["hospitals/",url_prefix,".html"])
                 hospitalLinksList.append("<li><a href=\"{}\">{}</a></li>\n".format(url,name))
