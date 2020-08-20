@@ -77,7 +77,7 @@ def makeMergedTrustWaitingPlot(name, NHSdata):
         ax.plot(dates[mask], NumWaiting/1e6,'k.',lw=3)
         
         ax.plot(movingAverage(dates[mask]), movingAverage(NumWaiting),
-                 'k-',lw=2)
+                 'k-', lw=2)
         yrange[1] = 1.1*max(NumWaiting)
         xrange[0] = min(dates[mask])-1/12
         
@@ -86,13 +86,14 @@ def makeMergedTrustWaitingPlot(name, NHSdata):
         index = np.where(names == old_trust)[0]
         
         OldMask = waiting[index,:] != '-'
-        print(len(dates), len(OldMask[0]))
-        print(OldMask[0])
-        print(dates[OldMask[0]])
+        #print(len(dates), len(OldMask[0]))
+        #print(OldMask[0])
+        #print(dates[OldMask[0]])
         OldWaiting = intvec(str2num(waiting[index,:][OldMask]))
-        print(len(OldWaiting), OldWaiting)
-        ax.plot(dates[OldMask[0]], OldWaiting,'.',lw=3,
-                 color = old_colours[j], label = make_label(old_trust))
+        #print(len(OldWaiting), OldWaiting)
+        ax.plot(dates[OldMask[0]], OldWaiting,'.',
+                 color = old_colours[j], alpha = 0.4,
+                 label = make_label(old_trust))
         ax.plot(movingAverage(dates[OldMask[0]]), 
                  movingAverage(OldWaiting),
                  '-',lw=2, color = old_colours[j])
@@ -152,11 +153,11 @@ def plotWaitingData(data):
                 
             elif name in mergered_trusts.keys():
                 print("Merged Trust!!")
-                
+                figName = '_'.join(name.lower().split(' '))
                 fig = makeMergedTrustWaitingPlot(name, NHSdata)
                 
-                plt.savefig("figures/{}.png".format(figName))
-                plt.close()
+                fig.savefig("figures/{}.png".format(figName))
+                plt.close(fig)
                 
                 
             elif sum(mask)>=10:
