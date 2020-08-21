@@ -43,6 +43,18 @@ def get_names(data_file, output = False):
             print(name)
     return names
 
+def get_all_dict_values(d):
+    ''' From Michael Dorner on StackOverflow:
+        https://stackoverflow.com/users/1864294/michael-dorner'''
+    if isinstance(d, dict):
+        for v in d.values():
+            yield from get_all_dict_values(v)
+    elif isinstance(d, list):
+        for v in d:
+            yield from get_all_dict_values(v)
+    else:
+        yield d 
+
 ########################## Generate Plots ###########################
 
 def make_label(name):
@@ -57,12 +69,36 @@ def make_label(name):
 mergered_trusts = {
     "Bedfordshire Hospitals NHS Foundation Trust": \
         ['Bedford Hospital NHS Trust',
-         'Luton And Dunstable University Hospital NHS Foundation Trust',
-         'Luton And Dunstable Hospital NHS Foundation Trust']
+         'Luton And Dunstable University Hospital NHS Foundation Trust']
 }
 
+def combine_data(waitingData, allNames, combineNames):
+    ''' Combines (adds) the data for given list of trusts. 
+        Combined data is only given for dates at which *all*
+        listed trusts reported numbers.
+    '''
+    # initite total and mask
+    totalData = np.zeros(len(waitingData[0,:]), dtype = object)
+    mask = np.ones(len(waitingData[0,:]), dtype=bool)
+    
+    # Add all data together and make mask for dates at while all trusts
+    # provided data.
+    for name in combineNames:
+        data = waitingData[allNames == name][0]
+        newMask = data != "-"
+        #print(data.shape)
+        #rint(newMask[0])
+        # print("new mask:",newMask)
+        # print("new data:",data)
+        # print("masked data:",data)
+        totalData[newMask] += data[newMask]
+        mask *= newMask
+    totalData[np.invert(mask)] = "-"
+    
+    return totalData, mask
+          
 def makeMergedTrustWaitingPlot(name, NHSdata):
-    names, dates, _, waiting = NHSdata
+    allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
     
     fig = plt.figure(figsize=(7,5))
@@ -70,43 +106,34 @@ def makeMergedTrustWaitingPlot(name, NHSdata):
     yrange = [0,100]; xrange = [2020,2020]
     
     # plot main data
-    i = np.where(names == name)[0][0]
-    mask = (waiting[i,:] != '-')
-    if len(waiting[i,:][mask])>0:
-        NumWaiting = intvec(str2num(waiting[i,:][mask]))
-        ax.plot(dates[mask], NumWaiting/1e6,'k.',lw=3)
+    i = np.where(allNames == name)[0][0]
+    mask = (waitingData[i,:] != '-')
+    if len(waitingData[i,:][mask])>0:
+        NumWaiting = intvec(str2num(waitingData[i,:][mask]))
+        ax.plot(dates[mask], NumWaiting/1e6,'b.',lw=3)
         
         ax.plot(movingAverage(dates[mask]), movingAverage(NumWaiting),
-                 'k-', lw=2)
+                 'r-', lw=2)
         yrange[1] = 1.1*max(NumWaiting)
         xrange[0] = min(dates[mask])-1/12
-        
-    old_colours = ["tab:orange", "tab:green", "tab:red"]
-    for j, old_trust in enumerate(mergered_trusts[name]):
-        index = np.where(names == old_trust)[0]
-        
-        OldMask = waiting[index,:] != '-'
-        #print(len(dates), len(OldMask[0]))
-        #print(OldMask[0])
-        #print(dates[OldMask[0]])
-        OldWaiting = intvec(str2num(waiting[index,:][OldMask]))
-        #print(len(OldWaiting), OldWaiting)
-        ax.plot(dates[OldMask[0]], OldWaiting,'.',
-                 color = old_colours[j], alpha = 0.4,
-                 label = make_label(old_trust))
-        ax.plot(movingAverage(dates[OldMask[0]]), 
-                 movingAverage(OldWaiting),
-                 '-',lw=2, color = old_colours[j])
-        
-        # if max waiting nunber more than current range, extend 
-        # the range
-        yrange[1] = max(yrange[1],  1.1*max(OldWaiting))
-        # if min date is lower than current range, reduce the 
-        # minimum
-        xrange[0] = min(xrange[0], min(dates[OldMask[0]])-1/12)
+          
+    OldWaiting, OldMask = combine_data(waitingData, allNames, 
+                                       mergered_trusts[name])
+    #print(OldWaiting)
+    ax.plot(dates[OldMask], OldWaiting[OldMask],'b.', alpha = 0.2, ms = 10)
+    ax.plot(movingAverage(dates[OldMask]), movingAverage(OldWaiting[OldMask]),
+             'r-',lw=2)
+    
+    # if max waiting nunber more than current range, extend 
+    # the range
+    #print(OldWaiting)
+    yrange[1] = max(yrange[1],  1.1*max(OldWaiting[OldMask]))
+    # if min date is lower than current range, reduce the 
+    # minimum
+    xrange[0] = min(xrange[0], min(dates[OldMask])-1/12)
     
     ax.set_ylabel("Number of people\n waiting over 4 hours")
-    ax.plot(0,0,"k-", label = "3 month average")
+    ax.plot(0,0,"r-", label = "3 month average")
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
     ax.legend(prop = {"size":14})
@@ -131,15 +158,17 @@ def plotWaitingData(data):
     matplotlib.rcParams['font.family'] = 'sans-serif'
     matplotlib.rc('font', size=20)
 
-    # Plot and save the data
-
+    ### Plot and save the data ###
+    
+    # List of old trusts which have since merged into something else
+    oldTrusts = get_all_dict_values(mergered_trusts)
     for i, name in enumerate(names[:]):
-        if type(name) == str:
+        if type(name) == str and name not in oldTrusts:
             mask = (waiting[i,:] != '-')
             if name == "England":
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
                 fig = plt.figure(figsize=(7,5))
-                plt.plot(dates[mask], NumWaiting/1e6,'k.',lw=3)
+                plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours (million)")
                 figName = '_'.join(name.lower().split(' '))
@@ -151,8 +180,8 @@ def plotWaitingData(data):
                 plt.savefig("figures/{}.png".format(figName))
                 plt.close()
                 
+            # Deal with trusts which have merged together.
             elif name in mergered_trusts.keys():
-                print("Merged Trust!!")
                 figName = '_'.join(name.lower().split(' '))
                 fig = makeMergedTrustWaitingPlot(name, NHSdata)
                 
@@ -163,7 +192,7 @@ def plotWaitingData(data):
             elif sum(mask)>=10:
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
                 fig = plt.figure(figsize=(7,5))
-                plt.plot(dates[mask], NumWaiting,'k.',lw=3)
+                plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours")
                 figName = '_'.join(name.lower().split(' '))
@@ -192,10 +221,13 @@ def plotBedData(data):
     matplotlib.rcParams['font.family'] = 'sans-serif'
     matplotlib.rc('font', size=20)
 
-    # Plot and save the data
-
+    #### Plot and save the data ####
+    
+    # List of old trusts which have since merged into something else
+    oldTrusts = get_all_dict_values(mergered_trusts)
     for i, name in enumerate(names[:]):
-        if type(name) == str:
+
+        if type(name) == str and name not in oldTrusts:
             mask = (beds[i,:] != '-')
                   
             if sum(mask)>=4:
@@ -243,7 +275,10 @@ def MakeHomepage(waiting_data, bed_data):
     # Make list of hospital names
     hospitalLinksList = []
     for i, name in enumerate(allNames):
-        if type(name) == str:
+        # Check if the trust is in contained in the values of merged_trust
+        # i.e. is it an old trust which has since merged into something else.
+        oldTrust = name in get_all_dict_values(mergered_trusts)
+        if type(name) == str and not oldTrust:
             ane_points, bed_points = 0, 0
             merged = name in mergered_trusts.keys()
             
