@@ -43,24 +43,47 @@ def get_names(data_file, output = False):
             print(name)
     return names
 
-def get_all_dict_values(d):
+def all_dict_values_generator(d):
     ''' From Michael Dorner on StackOverflow:
         https://stackoverflow.com/users/1864294/michael-dorner'''
     if isinstance(d, dict):
         for v in d.values():
-            yield from get_all_dict_values(v)
+            yield from all_dict_values_generator(v)
     elif isinstance(d, list):
         for v in d:
-            yield from get_all_dict_values(v)
+            yield from all_dict_values_generator(v)
     else:
         yield d 
+        
+def get_all_dict_values(d):
+    gen = all_dict_values_generator(d)
+    output = []
+    for item in gen:
+        output.append(item)
+    return output
+        
+def capitaliseFirst(string_list):
+    '''Capitalised the first letter of each word in each string in a list
+except NHS which should be in all-caps'''
+    
+    for i, string in enumerate(string_list):
+        words = string.split(" ")
+        words = [word[0].upper() + word[1:] for word in words]
+        string_list[i] = " ".join(words).replace("Nhs", "NHS")
+        
+    return string_list
 
 ########################## Generate Plots ###########################
 
 def make_label(name):
+    #print(name)
     words = np.asarray(name.split(" "))
     #print(np.asarray(words) == "Hospital")
-    final_word = np.where(words == "Hospital")[0][0]
+    
+    mask = (words == "Hospital") | (words == "Hospitals") | \
+        (words == "University")
+    final_word = np.where(mask)[0][0]
+        
     words = words[0:final_word]
     label = ' '.join(words)
     return label
@@ -72,7 +95,7 @@ mergered_trusts = {
          'Luton And Dunstable University Hospital NHS Foundation Trust']
 }
 
-def combine_data(waitingData, allNames, combineNames):
+def combineWaitingData(waitingData, allNames, combineNames):
     ''' Combines (adds) the data for given list of trusts. 
         Combined data is only given for dates at which *all*
         listed trusts reported numbers.
@@ -86,18 +109,13 @@ def combine_data(waitingData, allNames, combineNames):
     for name in combineNames:
         data = waitingData[allNames == name][0]
         newMask = data != "-"
-        #print(data.shape)
-        #rint(newMask[0])
-        # print("new mask:",newMask)
-        # print("new data:",data)
-        # print("masked data:",data)
         totalData[newMask] += data[newMask]
         mask *= newMask
     totalData[np.invert(mask)] = "-"
     
     return totalData, mask
           
-def makeMergedTrustWaitingPlot(name, NHSdata):
+def plotMergedWaitingData(name, NHSdata):
     allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
     
@@ -117,7 +135,7 @@ def makeMergedTrustWaitingPlot(name, NHSdata):
         yrange[1] = 1.1*max(NumWaiting)
         xrange[0] = min(dates[mask])-1/12
           
-    OldWaiting, OldMask = combine_data(waitingData, allNames, 
+    OldWaiting, OldMask = combineWaitingData(waitingData, allNames, 
                                        mergered_trusts[name])
     #print(OldWaiting)
     ax.plot(dates[OldMask], OldWaiting[OldMask],'b.', alpha = 0.2, ms = 10)
@@ -136,7 +154,7 @@ def makeMergedTrustWaitingPlot(name, NHSdata):
     ax.plot(0,0,"r-", label = "3 month average")
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
-    ax.legend(prop = {"size":14})
+    ax.legend(prop = {"size":14},frameon=False, framealpha = 0,)
     fig.tight_layout()
     
     return fig
@@ -175,7 +193,7 @@ def plotWaitingData(data):
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small", name)
                     plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 16})
+                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,)
                 plt.tight_layout()
                 plt.savefig("figures/{}.png".format(figName))
                 plt.close()
@@ -183,7 +201,7 @@ def plotWaitingData(data):
             # Deal with trusts which have merged together.
             elif name in mergered_trusts.keys():
                 figName = '_'.join(name.lower().split(' '))
-                fig = makeMergedTrustWaitingPlot(name, NHSdata)
+                fig = plotMergedWaitingData(name, NHSdata)
                 
                 fig.savefig("figures/{}.png".format(figName))
                 plt.close(fig)
@@ -199,13 +217,57 @@ def plotWaitingData(data):
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small:", name)
                     plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 16})
+                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,)
                 plt.tight_layout()
                 plt.savefig("figures/{}.png".format(figName))
                 plt.close()
                 
     print("Done.")
     
+    
+def plotMergedBedData(newName, NHSdata):
+    barColours = ["#003d99", "#005EB8", "#80b3ff"]
+     
+    allNames, dates, beds = NHSdata
+
+    fig = plt.figure(figsize=(7,5))
+    ax = fig.add_subplot(111)
+    
+    # plot main data
+    mainData = beds[allNames == newName][0]
+    mainMask = mainData != "-"
+    if len(mainData[mainMask])>0:
+        ax.bar(dates[mainMask], mainData[mainMask], 
+               lw=3, width = 0.2,color = barColours[0], 
+               label = make_label(newName))
+        
+    # plot old data
+    
+    oldDataTotal = np.zeros(len(dates))
+    for i, oldTrustName in enumerate(mergered_trusts[newName]):
+        oldData = beds[allNames == oldTrustName][0]
+        oldDataMask = oldData != "-"
+        
+        ax.bar(dates[oldDataMask], oldData[oldDataMask], 
+                lw=3, width = 0.2,
+                bottom = oldDataTotal[oldDataMask], 
+                color = barColours[i+1],
+                label = make_label(oldTrustName))
+  
+        # determine bottom of the bars
+        if i == 0:
+            oldDataTotal = oldData
+        else:
+            oldDataTotal[oldDataMask] += oldData[oldDataMask]
+            
+    ax.set_ylabel("Total # of Available Beds")
+    ax.set_ylim(0, 1.3  *max(max(oldDataTotal[oldDataMask]), 
+                           max(mainData[mainMask])))
+    ax.legend(prop={"size":14},frameon=False, framealpha = 0)
+    fig.tight_layout()
+    
+    return fig  
+
 def plotBedData(data):
     ''' Plot the number of beds at NHS England Trusts'''
     
@@ -215,6 +277,8 @@ def plotBedData(data):
     NHSdata = np.load(data, allow_pickle=True)
     
     names, dates, beds = NHSdata
+    # format name to match waiting data
+    names = capitaliseFirst(names)
     
     import matplotlib
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -226,33 +290,32 @@ def plotBedData(data):
     # List of old trusts which have since merged into something else
     oldTrusts = get_all_dict_values(mergered_trusts)
     for i, name in enumerate(names[:]):
-
-        if type(name) == str and name not in oldTrusts:
-            mask = (beds[i,:] != '-')
-                  
-            if sum(mask)>=4:
-                fig = plt.figure(figsize=(7,5))
-                plt.bar(dates[mask], beds[i,:][mask]*1e-3,lw=3, width = 0.2, align='center', 
-                        alpha=1, color="#005EB8")
-                plt.ylabel("Total # of Available Beds\n(Thousands)")
-                
-                plt.ylim(0.98*min(beds[i,:][mask])*1e-3, 1.01*max(beds[i,:][mask])*1e-3)
-                figName = '_'.join(name.lower().split(' '))
-                plt.tight_layout()
-                plt.savefig("figures/{}_beds.png".format(figName))
+        if type(name) == str and not (name in oldTrusts):
+            figName = '_'.join(name.lower().split(' '))
+            mask = (beds[i,:] != '-')     
+            if name in mergered_trusts.keys():
+                #print("Merged!!!!!")
+                fig = plotMergedBedData(name, NHSdata)
+                fig.savefig("figures/{}_beds.png".format(figName))
                 plt.close()
+            elif sum(mask)>=4:
+                fig = plt.figure(figsize=(7,5))
+                plt.bar(dates[mask], beds[i,:][mask],lw=3, width = 0.2,
+                        align='center', 
+                        alpha=1, color="#005EB8")
+                plt.ylabel("Total # of Available Beds")
+                
+                plt.ylim(0, 1.3*max(beds[i,:][mask])) 
+                plt.tight_layout()
+                fig.savefig("figures/{}_beds.png".format(figName))
+                plt.close()
+
+        
+                
                 
     print("Done.")
     
-def capitaliseFirst(string_list):
-    '''Capitalised the first letter of each word in each string in a list'''
-    
-    for i, string in enumerate(string_list):
-        words = string.split(" ")
-        words = [word[0].upper() + word[1:] for word in words]
-        string_list[i] = " ".join(words).replace("Nhs", "NHS")
-        
-    return string_list
+
     
 def combineNames(names1, names2):
     '''Makes a single list of each name appearing in either list'''
