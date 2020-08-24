@@ -201,7 +201,7 @@ def plotMergedWaitingData(name, NHSdata):
     xrange[0] = min(xrange[0], min(dates[OldMask])-1/12)
     
     ax.set_ylabel("Number of people\n waiting over 4 hours")
-    ax.plot(0,0,"r-", label = "3 month average")
+    ax.plot(-100,0,"r-", label = "3 month average")
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
     ax.legend(prop = {"size":14},frameon=False, framealpha = 0,)
@@ -934,7 +934,7 @@ beds_little_change = u'''
 
             {}
             
-            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 26,000 fewer NHS beds in England than in 2010. That's a decrease of over 20%.</p>
             
             <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
             of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
