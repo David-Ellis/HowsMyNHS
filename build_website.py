@@ -95,25 +95,33 @@ mergered_trusts = {
          'Luton And Dunstable University Hospital NHS Foundation Trust']
 }
 
-def combineWaitingData(waitingData, allNames, combineNames):
+def combineAnEData(allData, allNames, merged_trust):
     ''' Combines (adds) the data for given list of trusts. 
         Combined data is only given for dates at which *all*
         listed trusts reported numbers.
     '''
     # initite total and mask
-    totalData = np.zeros(len(waitingData[0,:]), dtype = object)
-    mask = np.ones(len(waitingData[0,:]), dtype=bool)
+    totalData = np.zeros(len(allData[0,:]), dtype = object)
+    
+    newTrustData = allData[allNames == merged_trust][0]
+    
+    newTrustMask = np.asarray(newTrustData != "-")
     
     # Add all data together and make mask for dates at while all trusts
     # provided data.
-    for name in combineNames:
-        data = waitingData[allNames == name][0]
-        newMask = data != "-"
-        totalData[newMask] += data[newMask]
-        mask *= newMask
-    totalData[np.invert(mask)] = "-"
+    OldDataMask = np.ones(len(totalData), dtype = bool)
+    for oldTrust in mergered_trusts[merged_trust]:
+        oldTrustData = allData[allNames == oldTrust][0]
+        newMask = np.asarray(oldTrustData != "-")
+        
+        totalData[newMask] += oldTrustData[newMask]
+        OldDataMask = OldDataMask & newMask
+         
+    finalMask = OldDataMask | newTrustMask
+    #print(len(finalMask), len(totalData))
+    totalData[np.invert(finalMask)] = "-"
     
-    return totalData, mask
+    return totalData, finalMask
  
 def combineBedData(bedData, allNames, merged_trust):
     '''Calculates total number of overnight beds for trusts that merged into 
@@ -160,7 +168,7 @@ def plotMergedWaitingData(name, NHSdata):
         yrange[1] = 1.1*max(NumWaiting)
         xrange[0] = min(dates[mask])-1/12
           
-    OldWaiting, OldMask = combineWaitingData(waitingData, allNames, 
+    OldWaiting, OldMask = combineAnEData(waitingData, allNames, 
                                        mergered_trusts[name])
     #print(OldWaiting)
     ax.plot(dates[OldMask], OldWaiting[OldMask],'b.', alpha = 0.2, ms = 10)
@@ -399,6 +407,15 @@ def make_AnE_waiting_block(data, name):
     dates = dates2num(dates)
     i = np.where(names == name)[0][0]
     
+    
+    if name not in mergered_trusts.keys():
+        attendanceData = attendance[i,:]
+        waitingData = waiting [i,:]
+    else:
+        print("Error: Merged trust!!!!")
+        attendanceData, _ = combineAnEData(attendance, names, name)
+        waitingData, _ = combineAnEData(waiting, names, name)
+        
     if i == 0:
         # Get figure path
         figName = '_'.join(name.lower().split(' '))
@@ -420,18 +437,18 @@ def make_AnE_waiting_block(data, name):
 
         chunk = supTextHTML.format(imgHTML, brexit_et_al)
         
-    elif sum(attendance[i,:] != '-')>=10:
+    elif sum(attendanceData != '-')>=10:
         # Get figure path
         figName = '_'.join(name.lower().split(' '))
         path = "../figures/{}.png".format(figName)
         
         imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
 
-        smoothWait = movingAverage(waiting[i,:][waiting[i,:] != '-'])
-        avAtt = np.mean(attendance[i,:][attendance[i,:] != '-'])
+        smoothWait = movingAverage(waitingData[waitingData != '-'])
+        avAtt = np.mean(attendanceData[attendanceData != '-'])
         #print(waiting[i,:] != '-')
         #print(dates)
-        sampleDates = dates[waiting[i,:] != '-']
+        sampleDates = dates[waitingData != '-']
         diff = smoothWait[0]-smoothWait[-1]
         
         if max(smoothWait) < 15 and avAtt<2000:
