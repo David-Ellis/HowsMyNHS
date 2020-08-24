@@ -114,7 +114,32 @@ def combineWaitingData(waitingData, allNames, combineNames):
     totalData[np.invert(mask)] = "-"
     
     return totalData, mask
-          
+ 
+def combineBedData(bedData, allNames, merged_trust):
+    '''Calculates total number of overnight beds for trusts that merged into 
+    a final merged trust, as stored in the global merged_trusts dictionary'''
+    
+    # initite total and mask
+    totalBeds = np.zeros(len(bedData[0,:]), dtype = object)
+   
+    # Add new trust data
+    newTrustBeds = bedData[allNames == merged_trust][0]
+    
+    totalMask = np.asarray(newTrustBeds != "-")
+    totalBeds[totalMask] += newTrustBeds[totalMask]
+    
+    # Add beds for old trusts
+    for oldTrust in mergered_trusts[merged_trust]:
+        oldTrustBeds = bedData[allNames == oldTrust][0]
+        newMask  = np.asarray(oldTrustBeds != "-")
+        totalBeds[newMask] += oldTrustBeds[newMask]
+        
+        totalMask = totalMask | newMask
+        
+    totalBeds[np.invert(totalMask)] = "-"
+    
+    return totalBeds
+    
 def plotMergedWaitingData(name, NHSdata):
     allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
@@ -476,7 +501,9 @@ def make_AnE_waiting_block(data, name):
              {}
             
             '''.format(int(diff), int(np.floor(min(sampleDates))), imgHTML, brexit_et_al)
-            
+    else:
+        print("Error: Trust \"{}\" doesn't quite fit.".format(name))
+        chunk = "<p> Error: Please contact website administrator. </p>"
             
     return chunk
     
@@ -495,13 +522,20 @@ def make_bed_block(beds_data, name):
     path = "../figures/{}_beds.png".format(figName)
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
     
-    # Calculate fractional change
-    mask = beds[i][0] != "-"
-    num_change = beds[i][0][mask][0] - beds[i][0][mask][-1]
-    change = num_change/beds[i][0][mask][-1]
     
-    #print("beds=", beds[i])
-    #print(len(dates), len(mask))
+    # Calculate fractional change
+    if name not in mergered_trusts.keys():
+        mask = beds[i][0] != "-"
+        num_change = beds[i][0][mask][0] - beds[i][0][mask][-1]
+        change = num_change/beds[i][0][mask][-1]
+    else:
+        # Combine merged trust data
+        totalBeds = combineBedData(beds, names, name)
+        mask = totalBeds != "-"
+        
+        # calculate change
+        num_change = totalBeds[mask][0] - totalBeds[mask][-1]  
+        change = num_change/totalBeds[mask][-1]
     
     if i == 0:
 
@@ -558,12 +592,34 @@ def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
         if ane_points >= 10:
             ane_block = True
             
+    # if trust is made from merger, check the old trusts
+    if name in mergered_trusts.keys():
+        for oldTrust in mergered_trusts[name]:
+            if oldTrust in ane_names:
+                attendence = all_attendence[ane_names == oldTrust]
+                #print(oldTrust, attendence)
+                ane_points = len(attendence[attendence != "-"])
+                if ane_points >= 10:  
+                    ane_block = True
+                    #print("merged A&E block added")
+                    
     # Check if Bed block is needed
     if name in bed_names:
         beds = all_beds[bed_names == name]
         bed_points = len(beds[beds != "-"])
         if bed_points >= 4:
             bed_block = True
+            
+        # if trust is made from merger, check the old trusts
+    if name in mergered_trusts.keys():
+        for oldTrust in mergered_trusts[name]:
+            if oldTrust in bed_names:
+                beds = all_beds[bed_names == oldTrust]
+                #print(oldTrust, beds)
+                bed_points = len(beds[beds != "-"])
+                if bed_points >= 4:
+                    bed_block = True
+                    #print("merged bed block added")
             
     return ane_block, bed_block
     
