@@ -497,11 +497,16 @@ def make_AnE_waiting_block(data, name):
         elif diff < 100:
             #print(name)
             chunk = '''
-            <p> The data show's that, for this trust, on average {} fewer people 
-            are waiting over four hours to be seen at A&E than in {}. Unfortunately,
-            for many English hospitals, the situation is much worse. After nearly a
-            decade of Conservative rule, each month over <b>400,000</b> more people 
-            are made to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
+            <p> 
+            The data show's that, for this trust, on average {} fewer people 
+            are waiting over four hours to be seen at A&E than in {}.
+            </p>
+            
+            <p>
+            Unfortunately, for many English hospitals, the situation is much worse.
+            After nearly a decade of Conservative rule, each month over <b>400,000</b>
+            more people are made to wait <b>over four hours</b> to be seen at A&E than in 2011.
+            </p>
 
              {}
 
@@ -511,10 +516,15 @@ def make_AnE_waiting_block(data, name):
         else:
             #print(name)
             chunk = '''
-            <p> The data show's that thing's have gotten worse in your hospital. With {} more people each month 
-             being forced to wait over 4 hours to be seen at A&E since {}. Unfortunately, for many English hospitals,
-             the situation is much worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
-             to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
+            <p> 
+            The data show's that thing's have gotten worse in your hospital. With {} more people each month 
+             being forced to wait over 4 hours to be seen at A&E since {}.
+            </p>
+            <p>
+             Unfortunately, for many English NHS Trusts, the situation is much worse.
+             After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
+             to wait <b>over four hours</b> to be seen at A&E than in 2011.
+             </p>
 
              {}
 
@@ -839,11 +849,13 @@ brexit_et_al = '''<p>Now, Brexit and an impending trade deal with Trump's US thr
 
 england_beds = u'''
 
-            <p>Since the Conservatives came to power in 2010, there are {} fewer NHS beds in England. That's {} fewer beds for those that who might need them. That's a decrease of over 10%. <p>
+            <p>Since the Conservatives came to power in 2010, there are {} fewer NHS beds in England. 
+            That's {} fewer beds for those that who might need them. That's a decrease of over 20%. <p>
 
             {}
             
-            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more.</p>
+            <p>Over 48% of NHS trusts have fewer beds, whereas little more than 10%
+            of trusts have significantly more.</p>
             
             <center><img src=\"..\BedsPieChart.png\" alt=\"Beds Pie Chart\"></center>
             
@@ -856,9 +868,13 @@ beds_worse = u'''
 
             {}
             
-            <p>Unfortunatly, similar things are being seen accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            <p>Unfortunatly, similar things are being seen accross the country. 
+            Overall, there are 26,000 fewer NHS beds in England than in 2010. 
+            That's a decrease of over 20%. See our 
+            <a href = "england.html"> summary page for the whole of England</a>.</p>
             
-            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
+            of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
             '''
@@ -868,9 +884,12 @@ beds_all_gone = u'''
 
             {}
             
-            <p>Unfortunatly, similar things are being seen accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            <p>Unfortunatly, similar things are being seen accross the country. 
+            Overall, there are 26,000 fewer NHS beds in England than in 2010. That's a decrease of over 20%.</p>
             
-            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            <p>Over 48% of NHS trusts have fewer beds, whereas little more than 10%
+            of trusts have significantly more. See our 
+            <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
             '''
@@ -880,9 +899,13 @@ beds_better = u'''
 
             {}
             
-            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
+            <p>Unfortunatly, similar things are being seen accross the country. 
+            Overall, there are 26,000 fewer NHS beds in England than in 2010. 
+            That's a decrease of over 20%. See our 
+            <a href = "england.html"> summary page for the whole of England</a>.</p>
             
-            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
+            of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
            '''
@@ -894,7 +917,8 @@ beds_little_change = u'''
             
             <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 15,500 fewer NHS beds in England than in 2010. That's a decrease of over 10%.</p>
             
-            <p>Over 41% of NHS trusts have fewer beds, whereas less than 25% of trusts have more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
+            <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
+            of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
            '''
