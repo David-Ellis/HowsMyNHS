@@ -649,11 +649,13 @@ def build_trust_pages(waiting_data, beds_data):
     names2 = capitaliseFirst(names2)
     allNames = combineNames(names1, names2)
    
+    # list of old trusts
+    oldTrusts = get_all_dict_values(mergered_trusts)
     for i, name in enumerate(allNames):
-        
+        #print(name)
         AnEblock, bedblock = whichChunks(name, names1, names2, attendance, beds)
         
-        if AnEblock or bedblock:
+        if (AnEblock or bedblock) and (name not in oldTrusts):
             
             url_prefix = '_'.join(name.lower().split(' '))
             url = ''.join([url_prefix,".html"])
@@ -683,7 +685,6 @@ def build_trust_pages(waiting_data, beds_data):
             file.write(''.join([headHTML,subTitleHTML,tab_HTML,
                                 supTextHTML,tailHTML, tab_script]))
             file.close() 
-        
     print("Done.")
     
 ####################################################################################################
