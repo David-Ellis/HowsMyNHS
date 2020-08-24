@@ -81,7 +81,12 @@ def make_label(name):
     #print(np.asarray(words) == "Hospital")
     
     mask = (words == "Hospital") | (words == "Hospitals") | \
-        (words == "University")
+        (words == "University") | (words == "NHS")
+        
+    # make sure that one of these final words is in the name 
+    assert sum(mask) > 0, \
+        "Error: \'final\' label word not found for {}".format(name)
+        
     final_word = np.where(mask)[0][0]
         
     words = words[0:final_word]
@@ -94,10 +99,10 @@ mergered_trusts = {
         ['Bedford Hospital NHS Trust',
          'Luton And Dunstable University Hospital NHS Foundation Trust'],
         
-    # "Mid and South Essex NHS Foundation Trust" : \
-    #     ["Basildon and Thurrock University Hospitals NHS Foundation Trust",
-    #      "Mid Essex Hospital Services NHS Trust",
-    #      "Southend University Hospital NHS Foundation Trust"]
+    "Mid And South Essex NHS Foundation Trust" : \
+        ["Basildon And Thurrock University Hospitals NHS Foundation Trust",
+          "Mid Essex Hospital Services NHS Trust",
+          "Southend University Hospital NHS Foundation Trust"]
 }
 
 def combineAnEData(allData, allNames, merged_trust):
@@ -111,6 +116,8 @@ def combineAnEData(allData, allNames, merged_trust):
     newTrustData = allData[allNames == merged_trust][0]
     
     newTrustMask = np.asarray(newTrustData != "-")
+    
+    totalData[newTrustMask] = newTrustData[newTrustMask]
     
     # Add all data together and make mask for dates at while all trusts
     # provided data.
@@ -165,7 +172,7 @@ def plotMergedWaitingData(name, NHSdata):
     
     fig = plt.figure(figsize=(7,5))
     ax = fig.add_subplot(111)
-    yrange = [0,100]; xrange = [2020,2020]
+    yrange = [0,100]; xrange = [2020,2021]
     
     # plot main data
     i = np.where(allNames == name)[0][0]
@@ -269,7 +276,7 @@ def plotWaitingData(data):
     
     
 def plotMergedBedData(newName, NHSdata):
-    barColours = ["#003d99", "#005EB8", "#80b3ff"]
+    barColours = ["#004684", "#006BC8", "#39A1FC", "#71BCFE"]
      
     allNames, dates, beds = NHSdata
 
@@ -304,9 +311,10 @@ def plotMergedBedData(newName, NHSdata):
             oldDataTotal[oldDataMask] += oldData[oldDataMask]
             
     ax.set_ylabel("Total # of Available Beds")
-    ax.set_ylim(0, 1.3  *max(max(oldDataTotal[oldDataMask]), 
-                           max(mainData[mainMask])))
-    ax.legend(prop={"size":14},frameon=False, framealpha = 0)
+    ax.set_ylim(0, (1.2 + \
+        len(mergered_trusts[newName])/10)*max(max(oldDataTotal[oldDataMask]), 
+                                              max(mainData[mainMask])))
+    ax.legend(prop={"size":14},frameon=False, framealpha = 0, loc=2)
     fig.tight_layout()
     
     return fig  
@@ -660,7 +668,7 @@ def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
                 bed_points = len(beds[beds != "-"])
                 if bed_points >= 4:
                     bed_block = True
-                    #print("merged bed block added")
+                    #print("merged bed block added: {}".format(name))
             
     return ane_block, bed_block
     
