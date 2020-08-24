@@ -168,8 +168,7 @@ def plotMergedWaitingData(name, NHSdata):
         yrange[1] = 1.1*max(NumWaiting)
         xrange[0] = min(dates[mask])-1/12
           
-    OldWaiting, OldMask = combineAnEData(waitingData, allNames, 
-                                       mergered_trusts[name])
+    OldWaiting, OldMask = combineAnEData(waitingData, allNames, name)
     #print(OldWaiting)
     ax.plot(dates[OldMask], OldWaiting[OldMask],'b.', alpha = 0.2, ms = 10)
     ax.plot(movingAverage(dates[OldMask]), movingAverage(OldWaiting[OldMask]),
@@ -412,7 +411,7 @@ def make_AnE_waiting_block(data, name):
         attendanceData = attendance[i,:]
         waitingData = waiting [i,:]
     else:
-        print("Error: Merged trust!!!!")
+        # Combine merged trust data
         attendanceData, _ = combineAnEData(attendance, names, name)
         waitingData, _ = combineAnEData(waiting, names, name)
         
