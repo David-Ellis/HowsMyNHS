@@ -497,7 +497,11 @@ def make_AnE_waiting_block(data, name):
         elif diff < 100:
             #print(name)
             chunk = '''
-            <p> The data show's that, for this trust, on average {} fewer people are waiting over four hours to be seen at A&E than in {}. It many English hospitals, the situation is much worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
+            <p> The data show's that, for this trust, on average {} fewer people 
+            are waiting over four hours to be seen at A&E than in {}. Unfortunately,
+            for many English hospitals, the situation is much worse. After nearly a
+            decade of Conservative rule, each month over <b>400,000</b> more people 
+            are made to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
 
              {}
 
@@ -508,8 +512,8 @@ def make_AnE_waiting_block(data, name):
             #print(name)
             chunk = '''
             <p> The data show's that thing's have gotten worse in your hospital. With {} more people each month 
-             being forced to wait over 4 hours to be seen at A&E since {}. It many English hospitals, the situation is much
-             worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
+             being forced to wait over 4 hours to be seen at A&E since {}. Unfortunately, for many English hospitals,
+             the situation is much worse. After nearly a decade of Conservative rule, each month over <b>400,000</b> more people are made 
              to wait <b>over four hours</b> to be seen at A&E than in 2011.</p>
 
              {}
