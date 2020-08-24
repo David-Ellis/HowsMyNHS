@@ -92,7 +92,12 @@ def make_label(name):
 mergered_trusts = {
     "Bedfordshire Hospitals NHS Foundation Trust": \
         ['Bedford Hospital NHS Trust',
-         'Luton And Dunstable University Hospital NHS Foundation Trust']
+         'Luton And Dunstable University Hospital NHS Foundation Trust'],
+        
+    # "Mid and South Essex NHS Foundation Trust" : \
+    #     ["Basildon and Thurrock University Hospitals NHS Foundation Trust",
+    #      "Mid Essex Hospital Services NHS Trust",
+    #      "Southend University Hospital NHS Foundation Trust"]
 }
 
 def combineAnEData(allData, allNames, merged_trust):
@@ -111,6 +116,9 @@ def combineAnEData(allData, allNames, merged_trust):
     # provided data.
     OldDataMask = np.ones(len(totalData), dtype = bool)
     for oldTrust in mergered_trusts[merged_trust]:
+        
+        assert oldTrust in allNames, "Error: {} data not found".format(oldTrust)
+        
         oldTrustData = allData[allNames == oldTrust][0]
         newMask = np.asarray(oldTrustData != "-")
         
@@ -138,6 +146,9 @@ def combineBedData(bedData, allNames, merged_trust):
     
     # Add beds for old trusts
     for oldTrust in mergered_trusts[merged_trust]:
+        
+        assert oldTrust in allNames, "Error: {} data not found".format(oldTrust)
+        
         oldTrustBeds = bedData[allNames == oldTrust][0]
         newMask  = np.asarray(oldTrustBeds != "-")
         totalBeds[newMask] += oldTrustBeds[newMask]
