@@ -779,14 +779,11 @@ homeHTML1 = '''
 <div class="searchbox">
 <div class="description">
 <p style="padding: 0px; margin: 0px; padding-bottom: 10px;">
-900% increase in the number of people waiting over four hours at A&E. </p>
-<p style="padding: 0px; margin: 0px; padding-bottom: 10px;">
- 20% reduction in the number of overnight beds. </p>
-<p style="padding: 0px; margin: 0px; padding-bottom: 10px;">
-The NHS is in crisis.
-</p>
+A&E waiting times are soring and there are fewer and fewer beds for those that need them.
+The NHS is in crisis.</p>
+
 <pstyle="padding: 0px; margin: 0px;">
-How is your local Trust doing?
+How is your local NHS Trust doing?
 </p>
 </div>
 
