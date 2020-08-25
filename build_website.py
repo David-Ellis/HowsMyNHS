@@ -439,8 +439,9 @@ def make_AnE_waiting_block(data, name):
         figName = '_'.join(name.lower().split(' '))
         path = "../figures/{}.png".format(figName)
 
-        imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
-
+        
+        imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path,
+             "A&E waiting data for all of England.")
         supTextHTML = u'''
 
             <p>After nearly a decade of Conservative rule, in December over <b>500,000</b> more people were made to wait
@@ -460,8 +461,9 @@ def make_AnE_waiting_block(data, name):
         figName = '_'.join(name.lower().split(' '))
         path = "../figures/{}.png".format(figName)
         
-        imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
-
+        imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path,
+             "A&E waiting data for {} - Number of people waiting over four hours each month.".format(name))
+        
         smoothWait = movingAverage(waitingData[waitingData != '-'])
         avAtt = np.mean(attendanceData[attendanceData != '-'])
         #print(waiting[i,:] != '-')
@@ -569,7 +571,8 @@ def make_bed_block(beds_data, name):
     
     figName = '_'.join(name.lower().split(' '))
     path = "../figures/{}_beds.png".format(figName)
-    imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, name)
+    imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
+                    "Number of available overnight beds for {}.".format(name))
     
     
     # Calculate fractional change
@@ -684,7 +687,7 @@ def generate_meta(name, AnEblock, bedblock):
         + "Number of hospital beds, " * bedblock \
         + name
 
-    meta_HTML = '''<meta name="description" content="{}">
+    meta_HTML = '''\t<meta name="description" content="{}">
     <meta name="keywords" content="{}">'''.format(meta_desc, meta_keywords)
     
     return meta_HTML
