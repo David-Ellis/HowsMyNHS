@@ -672,6 +672,23 @@ def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
             
     return ane_block, bed_block
     
+def generate_meta(name, AnEblock, bedblock):
+    '''Creates meta HTML for given trust page'''
+    
+    meta_desc = "Number of hospital beds" * bedblock \
+        +  " and " * AnEblock * bedblock \
+        + "A&E waiting data" * AnEblock \
+        + " for {}.".format(name)
+        
+    meta_keywords = "NHS, " + "A&E waiting data, " * AnEblock \
+        + "Number of hospital beds, " * bedblock \
+        + name
+
+    meta_HTML = '''<meta name="description" content="{}">
+    <meta name="keywords" content="{}">'''.format(meta_desc, meta_keywords)
+    
+    return meta_HTML
+
 def build_trust_pages(waiting_data, beds_data):
     print("Building trust pages...", end = " ")
     
@@ -694,6 +711,7 @@ def build_trust_pages(waiting_data, beds_data):
             url = ''.join([url_prefix,".html"])
             file = open("hospitals/{}".format(url), "w")
             
+            meta_HTML = generate_meta(name, AnEblock, bedblock)
                         
             subTitleHTML = '''
             <div class = \"box\">
@@ -715,7 +733,7 @@ def build_trust_pages(waiting_data, beds_data):
                 
             supTextHTML += "</div>\n"
             
-            file.write(''.join([headHTML1,headHTML2.format(name),subTitleHTML,tab_HTML,
+            file.write(''.join([headHTML1,headHTML2.format(name, meta_HTML),subTitleHTML,tab_HTML,
                                 supTextHTML,tailHTML, tab_script]))
             file.close() 
     print("Done.")
@@ -856,6 +874,9 @@ headHTML1 = '''
 
 headHTML2 ='''<title>How's my NHS? - {}</title>
 <link rel="stylesheet" type="text/css" href="../style.css">
+
+<!-- meta data-->
+{}
 
 </head>
 <body>
