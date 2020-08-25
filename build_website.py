@@ -403,7 +403,7 @@ def MakeHomepage(waiting_data, bed_data):
                 bed_points = len(beds[names2 == name][beds[names2 == name] != '-'])
             
             if ane_points >= 10 or bed_points>= 4 or merged:
-                url_prefix = '_'.join(name.lower().split(' '))
+                url_prefix = '-'.join(name.lower().split(' '))
                 url = ''.join(["hospitals/",url_prefix,".html"])
                 hospitalLinksList.append("<li><a href=\"{}\">{}</a></li>\n".format(url,name))
 
@@ -690,7 +690,7 @@ def build_trust_pages(waiting_data, beds_data):
         
         if (AnEblock or bedblock) and (name not in oldTrusts):
             
-            url_prefix = '_'.join(name.lower().split(' '))
+            url_prefix = '-'.join(name.lower().split(' '))
             url = ''.join([url_prefix,".html"])
             file = open("hospitals/{}".format(url), "w")
             
