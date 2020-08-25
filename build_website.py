@@ -715,7 +715,7 @@ def build_trust_pages(waiting_data, beds_data):
                 
             supTextHTML += "</div>\n"
             
-            file.write(''.join([headHTML,subTitleHTML,tab_HTML,
+            file.write(''.join([headHTML1,headHTML2.format(name),subTitleHTML,tab_HTML,
                                 supTextHTML,tailHTML, tab_script]))
             file.close() 
     print("Done.")
@@ -769,7 +769,9 @@ homeHTML1 = '''
 
     <title>How's my NHS?</title>
     
-    <meta name="description" content="Public data regarding the welbeing of the NHS.">
+    <meta name="description" content="How many people are
+    waiting long hours at A&E at your local NHS Trust? How many beds does your 
+    Trust have? How has this all changed over time? Find out here.">
     <meta name="keywords" content="NHS, A&E, Overnight beds, data">
     
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -837,7 +839,7 @@ function myFunction() {
 ######################################  Trust pages text ############################################
 #####################################################################################################
 
-headHTML = '''
+headHTML1 = '''
 <html>
 <head>
 
@@ -849,10 +851,10 @@ headHTML = '''
   gtag('js', new Date());
 
   gtag('config', 'UA-154345093-1');
-</script>
+</script>'''
 
 
-<title>How's my NHS?</title>
+headHTML2 ='''<title>How's my NHS? - {}</title>
 <link rel="stylesheet" type="text/css" href="../style.css">
 
 </head>
