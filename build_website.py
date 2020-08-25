@@ -361,13 +361,30 @@ def plotBedData(data):
                 fig.savefig("figures/{}_beds.png".format(figName))
                 plt.close()
 
-        
-                
+    #### Plot trust change pie chart #### 
+    more, same, fewer = bed_change_per_trust(names, beds)
+    
+    plt.figure(figsize = (7,5))
+    labels = 'Fewer Beds', 'Same*', 'More Beds'
+    sizes = [fewer, same, more]
+    
+    colors = ['lightcoral', 'lightgray', 'yellowgreen']
+    explode = (0.05, 0.0, 0.0)  # explode 1st slice
+    
+    # Plot
+    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
+    autopct='%1.1f%%', shadow=True, startangle=140)
+    
+    plt.axis('equal')
+    plt.tight_layout()
+    plt.annotate("* change smaller than 50 beds.", 
+                 (0.2, -1.2), size = 13, color = "gray")
+    plt.savefig("figures/BedsPieChart.png")      
+    plt.close( )      
                 
     print("Done.")
-    
 
-    
+
 def combineNames(names1, names2):
     '''Makes a single list of each name appearing in either list'''
     namesOut = names1
@@ -558,12 +575,40 @@ def make_AnE_waiting_block(data, name):
             
     return chunk
     
+def bed_change_per_trust(names, bed_data):
+    better = 0
+    worse = 0
+    same = 0
+    
+    oldTrusts = get_all_dict_values(mergered_trusts)
+    numTrusts = 0
+    for i, name in enumerate(names):
+        if name != "England" and name not in oldTrusts:
+            if name not in mergered_trusts.keys():
+                trust_beds = bed_data[i]
+            else:
+                trust_beds = combineBedData(bed_data, names, name)
+            
+            trust_beds = trust_beds[trust_beds!='-']
+            
+            if len(trust_beds) >= 2:
+                numTrusts += 1
+                change = (trust_beds[0]-trust_beds[-1])
+                if change>=50:
+                    better += 1
+                elif change<=-50:
+                    worse += 1
+                else:
+                    same += 1
+    
+    return better/numTrusts*100, same/numTrusts*100, worse/numTrusts*100
+
 def make_bed_block(beds_data, name):
     ''' Generates the chunk of HTML relating to the A&E waiting time data for NHS trust <name>.
     
     TODO: Turn big chunks of text into global variables defined below with the other text.
     '''
-    names, dates,  beds = np.load(beds_data, allow_pickle=True)
+    names, dates, beds = np.load(beds_data, allow_pickle=True)
     
     names = capitaliseFirst(names)
     
@@ -574,6 +619,10 @@ def make_bed_block(beds_data, name):
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
                     "Number of available overnight beds for {}.".format(name))
     
+    england_bed_change = beds[0][-1] - beds[0][0]
+    england_bed_change_perc = (beds[0][-1] - beds[0][0])/beds[0][0]*100
+    
+    trusts_with_more, _, trust_with_fewer = bed_change_per_trust(names, beds)
     
     # Calculate fractional change
     if name not in mergered_trusts.keys():
@@ -591,22 +640,33 @@ def make_bed_block(beds_data, name):
     
     if i == 0:
 
-        chunk = england_beds.format(format_number(-num_change), format_number(-num_change), imgHTML, brexit_et_al)
+        chunk = england_beds.format(format_number(-num_change),
+                format_number(-num_change), imgHTML, int(trust_with_fewer),
+           int(trusts_with_more), brexit_et_al)
         
     elif change < -0.05 and change > -1:
         start_date = int(np.floor(dates[mask][-1]))
         percentage_change = abs(change)*100
        
-        chunk = beds_worse.format(name, format_number(-num_change), start_date, percentage_change, imgHTML, brexit_et_al)
+        chunk = beds_worse.format(name, format_number(-num_change), start_date, 
+           percentage_change, imgHTML, england_bed_change, 
+           int(england_bed_change_perc), int(trust_with_fewer),
+           int(trusts_with_more), brexit_et_al)
         
     elif change == -1:
         # All of the beds are gone
         start_date = int(np.floor(dates[mask][-1]))
-        chunk = beds_all_gone.format(name, format_number(-num_change), start_date, imgHTML, brexit_et_al)
+        chunk = beds_all_gone.format(name, format_number(-num_change), 
+                start_date, imgHTML, england_bed_change, 
+           int(england_bed_change_perc), int(trust_with_fewer),
+           int(trusts_with_more), brexit_et_al)
     elif change > 0.05:
         # Things are better
         start_date = int(np.floor(dates[mask][-1]))
-        chunk = beds_better.format(name, start_date, format_number(num_change), imgHTML, brexit_et_al)
+        chunk = beds_better.format(name, int(trusts_with_more), start_date, format_number(num_change),
+                     imgHTML,england_bed_change, 
+           int(england_bed_change_perc), int(trust_with_fewer),
+           int(trusts_with_more), brexit_et_al)
    
     else:
         # Not much change
@@ -624,7 +684,10 @@ def make_bed_block(beds_data, name):
             more_or_less = "exactly 1 less bed"
         else:
             more_or_less = "exactly the same number of beds"
-        chunk = beds_little_change.format(name, more_or_less, start_date, imgHTML, brexit_et_al)
+        chunk = beds_little_change.format(name, more_or_less, start_date, 
+                   imgHTML, england_bed_change, 
+           int(england_bed_change_perc), int(trust_with_fewer),
+           int(trusts_with_more), brexit_et_al)
         
     return chunk   
 
@@ -909,10 +972,10 @@ england_beds = u'''
 
             {}
             
-            <p>Over 48% of NHS trusts have fewer beds, whereas little more than 10%
+            <p> Roughly {}% of NHS trusts have fewer beds, whereas only around {}%
             of trusts have significantly more.</p>
             
-            <center><img src=\"..\BedsPieChart.png\" alt=\"Beds Pie Chart\"></center>
+            <center><img src=\"../figures/BedsPieChart.png\" alt=\"Beds Pie Chart\"></center>
             
             {}
                         
@@ -924,11 +987,11 @@ beds_worse = u'''
             {}
             
             <p>Unfortunatly, similar things are being seen accross the country. 
-            Overall, there are 26,000 fewer NHS beds in England than in 2010. 
-            That's a decrease of over 20%. See our 
+            Overall, there are {} fewer NHS beds in England than in 2010. 
+            That's a decrease of {}%. See our 
             <a href = "england.html"> summary page for the whole of England</a>.</p>
             
-            <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
+            <p>Over {}% of NHS trusts have fewer beds,  whereas only around {}%
             of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
@@ -940,9 +1003,10 @@ beds_all_gone = u'''
             {}
             
             <p>Unfortunatly, similar things are being seen accross the country. 
-            Overall, there are 26,000 fewer NHS beds in England than in 2010. That's a decrease of over 20%.</p>
+            Overall, there are {} fewer NHS beds in England than in 2010. 
+            That's a decrease of {}%.</p>
             
-            <p>Over 48% of NHS trusts have fewer beds, whereas little more than 10%
+            <p>Over {}% of NHS trusts have fewer beds, whereas only around {}%
             of trusts have significantly more. See our 
             <a href = "england.html"> summary page for the whole of England</a>.</p>
             
@@ -950,16 +1014,16 @@ beds_all_gone = u'''
             '''
 
 beds_better = u'''
-            <p> {} is one of the lucky 25% of NHS England trusts which, under Conservative leadership, has more beds than in {}. With an increase of around {} beds.<p>
+            <p> {} is one of the lucky {}% of NHS England trusts which, under Conservative leadership, has more beds than in {}. With an increase of around {} beds.<p>
 
             {}
             
             <p>Unfortunatly, similar things are being seen accross the country. 
-            Overall, there are 26,000 fewer NHS beds in England than in 2010. 
-            That's a decrease of over 20%. See our 
+            Overall, there are {} fewer NHS beds in England than in 2010. 
+            That's a decrease of {}%. See our 
             <a href = "england.html"> summary page for the whole of England</a>.</p>
             
-            <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
+            <p>Over {}% of NHS trusts have fewer beds,  whereas only around {}%
             of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
@@ -970,9 +1034,11 @@ beds_little_change = u'''
 
             {}
             
-            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country. Overall, there are 26,000 fewer NHS beds in England than in 2010. That's a decrease of over 20%.</p>
+            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country.
+            Overall, there are {} fewer NHS beds in England than in 2010. 
+            That's a decrease of over {}%.</p>
             
-            <p>Over 48% of NHS trusts have fewer beds,  whereas little more than 10%
+            <p>Over {}% of NHS trusts have fewer beds,  whereas only around {}%
             of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
             
             {}
