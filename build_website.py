@@ -173,13 +173,15 @@ def makeFigureName(name, fig_type):
     fig_prefix = '-'.join(name.lower().split(' '))
     fig = ''.join([fig_prefix, "-", fig_type,".png"])
     fig = fig.replace(',', '') 
+    
     return fig    
+
 
 def plotMergedWaitingData(name, NHSdata):
     allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
     
-    fig = plt.figure(figsize=(7,5))
+    fig = plt.figure(figsize=(9,5))
     ax = fig.add_subplot(111)
     yrange = [0,100]; xrange = [2020,2021]
     
@@ -213,7 +215,7 @@ def plotMergedWaitingData(name, NHSdata):
     ax.plot(-100,0,"r-", label = "3 month average")
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
-    ax.legend(prop = {"size":14},frameon=False, framealpha = 0,)
+    ax.legend(prop = {"size":14},frameon=False, framealpha = 0,loc = 2)
     fig.tight_layout()
     
     return fig
@@ -244,7 +246,7 @@ def plotWaitingData(data):
             mask = (waiting[i,:] != '-')
             if name == "England":
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(7,5))
+                fig = plt.figure(figsize=(9,5))
                 plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours (million)")
@@ -252,7 +254,8 @@ def plotWaitingData(data):
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small", name)
                     plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,)
+                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,
+                           loc = 2)
                 plt.tight_layout()
                 plt.savefig("figures/{}".format(figName))
                 plt.close()
@@ -268,7 +271,7 @@ def plotWaitingData(data):
                 
             elif sum(mask)>=10:
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(7,5))
+                fig = plt.figure(figsize=(9,5))
                 plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours")
@@ -276,7 +279,7 @@ def plotWaitingData(data):
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small:", name)
                     plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,)
+                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,loc = 2)
                 plt.tight_layout()
                 plt.savefig("figures/{}".format(figName))
                 plt.close()
@@ -337,19 +340,23 @@ def plotBeds(name, dates, beds):
     else:
         rescale = 1
         
+    ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
+    
     fig = plt.figure(figsize=(9,5))
     if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
         bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
          (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
+        bax.set_ylabel(ylabel, labelpad = 50)
     else:
         bax = fig.add_subplot(111)
-        bax.set_ylim(0, 1.02*max(beds)*rescale)
+        bax.set_ylim(0, 1.1*max(beds)*rescale)
+        bax.set_ylabel(ylabel)
     
     bax.bar(dates, beds*rescale, width=0.18, color = NHSblue)
     
-    ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
     
-    bax.set_ylabel(ylabel, labelpad = 50)
+    
+    
     
     fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
     plt.close(fig)
@@ -390,7 +397,7 @@ def plotBedData(data):
     #### Plot trust change pie chart #### 
     more, same, fewer = bed_change_per_trust(names, beds)
     
-    plt.figure(figsize = (7,5))
+    plt.figure(figsize = (9,5))
     labels = 'Fewer Beds', 'Same*', 'More Beds'
     sizes = [fewer, same, more]
     
