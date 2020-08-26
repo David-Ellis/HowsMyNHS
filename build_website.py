@@ -393,6 +393,13 @@ def combineNames(names1, names2):
             namesOut = np.append(namesOut, name)
     return namesOut
 
+def makeURL(name):
+    url_prefix = '-'.join(name.lower().split(' '))
+    url = ''.join(["hospitals/",url_prefix,".html"])
+    url = url.replace(',', '') 
+    return url
+    
+    
 def MakeHomepage(waiting_data, bed_data):
     print("Building homepage...", end = " ")
     
@@ -420,8 +427,7 @@ def MakeHomepage(waiting_data, bed_data):
                 bed_points = len(beds[names2 == name][beds[names2 == name] != '-'])
             
             if ane_points >= 10 or bed_points>= 4 or merged:
-                url_prefix = '-'.join(name.lower().split(' '))
-                url = ''.join(["hospitals/",url_prefix,".html"])
+                url = makeURL(name)
                 hospitalLinksList.append("<li><a href=\"{}\">{}</a></li>\n".format(url,name))
 
     hospitalLinks = ''.join(hospitalLinksList)
@@ -773,9 +779,8 @@ def build_trust_pages(waiting_data, beds_data):
         
         if (AnEblock or bedblock) and (name not in oldTrusts):
             
-            url_prefix = '-'.join(name.lower().split(' '))
-            url = ''.join([url_prefix,".html"])
-            file = open("hospitals/{}".format(url), "w")
+            url = makeURL(name)
+            file = open(url, "w")
             
             meta_HTML = generate_meta(name, AnEblock, bedblock)
                         
