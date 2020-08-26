@@ -181,7 +181,7 @@ def plotMergedWaitingData(name, NHSdata):
     allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
     
-    fig = plt.figure(figsize=(9,5))
+    fig = plt.figure(figsize=(7,5))
     ax = fig.add_subplot(111)
     yrange = [0,100]; xrange = [2020,2021]
     
@@ -246,7 +246,7 @@ def plotWaitingData(data):
             mask = (waiting[i,:] != '-')
             if name == "England":
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(9,5))
+                fig = plt.figure(figsize=(7,5))
                 plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours (million)")
@@ -271,7 +271,7 @@ def plotWaitingData(data):
                 
             elif sum(mask)>=10:
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(9,5))
+                fig = plt.figure(figsize=(7,5))
                 plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours")
@@ -292,7 +292,7 @@ def plotMergedBedData(newName, NHSdata):
      
     allNames, dates, beds = NHSdata
 
-    fig = plt.figure(figsize=(9,5))
+    fig = plt.figure(figsize=(7,5))
     ax = fig.add_subplot(111)
     
     # plot main data
@@ -342,7 +342,7 @@ def plotBeds(name, dates, beds):
         
     ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
     
-    fig = plt.figure(figsize=(9,5))
+    fig = plt.figure(figsize=(7,5))
     if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
         bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
          (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
@@ -397,7 +397,7 @@ def plotBedData(data):
     #### Plot trust change pie chart #### 
     more, same, fewer = bed_change_per_trust(names, beds)
     
-    plt.figure(figsize = (9,5))
+    plt.figure(figsize = (7,5))
     labels = 'Fewer Beds', 'Same*', 'More Beds'
     sizes = [fewer, same, more]
     
