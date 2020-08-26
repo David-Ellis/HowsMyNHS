@@ -3,9 +3,12 @@ Module for building the HowsMyNHS website
 '''
 import numpy as np
 import matplotlib.pyplot as plt
+from brokenaxes import brokenaxes
 
 str2num = np.vectorize(float)
 intvec = np.vectorize(int)
+
+NHSblue = "#0072CE"
 
 def dates2num(dates_in):
     dates_out = []
@@ -165,7 +168,13 @@ def combineBedData(bedData, allNames, merged_trust):
     totalBeds[np.invert(totalMask)] = "-"
     
     return totalBeds
-    
+   
+def makeFigureName(name, fig_type):
+    fig_prefix = '-'.join(name.lower().split(' '))
+    fig = ''.join([fig_prefix, "-", fig_type,".png"])
+    fig = fig.replace(',', '') 
+    return fig    
+
 def plotMergedWaitingData(name, NHSdata):
     allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
@@ -239,21 +248,21 @@ def plotWaitingData(data):
                 plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours (million)")
-                figName = '_'.join(name.lower().split(' '))
+                figName = makeFigureName(name, "waiting")
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small", name)
                     plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
                 plt.legend(prop={"size": 14},frameon=False, framealpha = 0,)
                 plt.tight_layout()
-                plt.savefig("figures/{}.png".format(figName))
+                plt.savefig("figures/{}".format(figName))
                 plt.close()
                 
             # Deal with trusts which have merged together.
             elif name in mergered_trusts.keys():
-                figName = '_'.join(name.lower().split(' '))
+                figName = makeFigureName(name, "waiting")
                 fig = plotMergedWaitingData(name, NHSdata)
                 
-                fig.savefig("figures/{}.png".format(figName))
+                fig.savefig("figures/{}".format(figName))
                 plt.close(fig)
                 
                 
@@ -263,13 +272,13 @@ def plotWaitingData(data):
                 plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours")
-                figName = '_'.join(name.lower().split(' '))
+                figName = makeFigureName(name, "waiting")
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small:", name)
                     plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
                 plt.legend(prop={"size": 14},frameon=False, framealpha = 0,)
                 plt.tight_layout()
-                plt.savefig("figures/{}.png".format(figName))
+                plt.savefig("figures/{}".format(figName))
                 plt.close()
                 
     print("Done.")
@@ -280,7 +289,7 @@ def plotMergedBedData(newName, NHSdata):
      
     allNames, dates, beds = NHSdata
 
-    fig = plt.figure(figsize=(7,5))
+    fig = plt.figure(figsize=(9,5))
     ax = fig.add_subplot(111)
     
     # plot main data
@@ -319,6 +328,32 @@ def plotMergedBedData(newName, NHSdata):
     
     return fig  
 
+def plotBeds(name, dates, beds):
+    figName = makeFigureName(name, "beds")
+    
+    # rescale large numbers to be in thousands
+    if max(beds) > 1000:
+        rescale = 1/1000
+    else:
+        rescale = 1
+        
+    fig = plt.figure(figsize=(9,5))
+    if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
+        bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
+         (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
+    else:
+        bax = fig.add_subplot(111)
+        bax.set_ylim(0, 1.02*max(beds)*rescale)
+    
+    bax.bar(dates, beds*rescale, width=0.18, color = NHSblue)
+    
+    ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
+    
+    bax.set_ylabel(ylabel, labelpad = 50)
+    
+    fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
+    plt.close(fig)
+
 def plotBedData(data):
     ''' Plot the number of beds at NHS England Trusts'''
     
@@ -342,24 +377,15 @@ def plotBedData(data):
     oldTrusts = get_all_dict_values(mergered_trusts)
     for i, name in enumerate(names[:]):
         if type(name) == str and not (name in oldTrusts):
-            figName = '_'.join(name.lower().split(' '))
+            figName = makeFigureName(name, "beds")
             mask = (beds[i,:] != '-')     
             if name in mergered_trusts.keys():
                 #print("Merged!!!!!")
                 fig = plotMergedBedData(name, NHSdata)
-                fig.savefig("figures/{}_beds.png".format(figName))
+                fig.savefig("figures/{}".format(figName))
                 plt.close()
             elif sum(mask)>=4:
-                fig = plt.figure(figsize=(7,5))
-                plt.bar(dates[mask], beds[i,:][mask],lw=3, width = 0.2,
-                        align='center', 
-                        alpha=1, color="#005EB8")
-                plt.ylabel("Total # of Available Beds")
-                
-                plt.ylim(0, 1.3*max(beds[i,:][mask])) 
-                plt.tight_layout()
-                fig.savefig("figures/{}_beds.png".format(figName))
-                plt.close()
+                plotBeds(name, dates[mask],  beds[i,:][mask])
 
     #### Plot trust change pie chart #### 
     more, same, fewer = bed_change_per_trust(names, beds)
@@ -459,8 +485,8 @@ def make_AnE_waiting_block(data, name):
         
     if i == 0:
         # Get figure path
-        figName = '_'.join(name.lower().split(' '))
-        path = "../figures/{}.png".format(figName)
+        figName = makeFigureName(name, "waiting")
+        path = "../figures/{}".format(figName)
 
         
         imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path,
@@ -481,8 +507,8 @@ def make_AnE_waiting_block(data, name):
         
     elif sum(attendanceData != '-')>=10:
         # Get figure path
-        figName = '_'.join(name.lower().split(' '))
-        path = "../figures/{}.png".format(figName)
+        figName = makeFigureName(name, "waiting")
+        path = "../figures/{}".format(figName)
         
         imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path,
              "A&E waiting data for {} - Number of people waiting over four hours each month.".format(name))
@@ -620,8 +646,8 @@ def make_bed_block(beds_data, name):
     
     i = np.where(names == name)[0]
     
-    figName = '_'.join(name.lower().split(' '))
-    path = "../figures/{}_beds.png".format(figName)
+    figName = makeFigureName(name, "beds")
+    path = "../figures/{}".format(figName)
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
                     "Number of available overnight beds for {}.".format(name))
     
@@ -987,7 +1013,7 @@ england_beds = u'''
             '''
 
 beds_worse = u'''
-            <p>Under Conservative leadership, {} has around {} fewer beds than in {}. That's a {:.3}% drop in the number of beds for those who might desperately need them.<p>
+            <p>Under Conservative leadership, {} has around {} fewer beds than in {}. That's a {:.2}% drop in the number of beds for those who might desperately need them.<p>
 
             {}
             
