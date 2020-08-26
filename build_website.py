@@ -993,8 +993,7 @@ beds_worse = u'''
             
             <p>Unfortunatly, similar things are being seen accross the country. 
             Overall, there are {} fewer NHS beds in England than in 2010. 
-            That's a decrease of {}%. See our 
-            <a href = "england.html"> summary page for the whole of England</a>.</p>
+            That's a decrease of {}%.</p>
             
             <p>Over {}% of NHS trusts have fewer beds,  whereas only around {}%
             of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
@@ -1025,8 +1024,7 @@ beds_better = u'''
             
             <p>Unfortunatly, similar things are being seen accross the country. 
             Overall, there are {} fewer NHS beds in England than in 2010. 
-            That's a decrease of {}%. See our 
-            <a href = "england.html"> summary page for the whole of England</a>.</p>
+            That's a decrease of {}%.</p>
             
             <p>Over {}% of NHS trusts have fewer beds,  whereas only around {}%
             of trusts have significantly more. See our <a href = "england.html"> summary page for the whole of England</a>.</p>
