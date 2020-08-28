@@ -575,7 +575,7 @@ def make_AnE_waiting_block(data, name):
             #print(name)
             chunk = '''
             <p> 
-            The data show's that, for this trust, on average {} fewer people 
+            The data shows that, for this trust, on average {} fewer people 
             are waiting over four hours to be seen at A&E than in {}.
             </p>
             
@@ -594,7 +594,7 @@ def make_AnE_waiting_block(data, name):
             #print(name)
             chunk = '''
             <p> 
-            The data show's that thing's have gotten worse in your hospital. With {} more people each month 
+            The data shows that thing's have gotten worse in your hospital. With {} more people each month 
              being forced to wait over 4 hours to be seen at A&E since {}.
             </p>
             <p>
