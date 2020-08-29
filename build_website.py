@@ -1022,7 +1022,7 @@ england_beds = u'''
             <p> Roughly {}% of NHS trusts have fewer beds, whereas only around {}%
             of trusts have significantly more.</p>
             
-            <center><img src=\"../figures/BedsPieChart.png\" alt=\"Beds Pie Chart\"></center>
+            <center><img src=\"../figures/BedsPieChart.svg\" alt=\"Beds Pie Chart\"></center>
             
             {}
                         
