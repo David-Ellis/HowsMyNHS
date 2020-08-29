@@ -95,10 +95,10 @@ def makeNewsItem(newsItem):
 		</span>
 		
 		
-		<p id = "news-source">Source: NHS</p>
+		<p id = "news-source">Source: {}</p>
 	</div>
     
-    '''.format(imgHTML, date,url, title, decription)
+    '''.format(imgHTML, date,url, title, decription, source)
     
     return itemHTML
 
