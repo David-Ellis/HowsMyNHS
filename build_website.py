@@ -6,6 +6,7 @@ import news
 import numpy as np
 import matplotlib.pyplot as plt
 from brokenaxes import brokenaxes
+import matplotlib
 
 str2num = np.vectorize(float)
 intvec = np.vectorize(int)
@@ -175,7 +176,7 @@ def combineBedData(bedData, allNames, merged_trust):
    
 def makeFigureName(name, fig_type):
     fig_prefix = '-'.join(name.lower().split(' '))
-    fig = ''.join([fig_prefix, "-", fig_type,".png"])
+    fig = ''.join([fig_prefix, "-", fig_type,".svg"])
     fig = fig.replace(',', '') 
     
     return fig    
@@ -185,7 +186,7 @@ def plotMergedWaitingData(name, NHSdata):
     allNames, dates, _, waitingData = NHSdata
     dates = dates2num(dates)
     
-    fig = plt.figure(figsize=(7,5))
+    fig = plt.figure(figsize=(6,4))
     ax = fig.add_subplot(111)
     yrange = [0,100]; xrange = [2020,2021]
     
@@ -235,11 +236,9 @@ def plotWaitingData(data):
     names, dates, _, waiting = NHSdata
     dates = dates2num(dates)
     
-
-    import matplotlib
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
     matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rc('font', size=20)
+    matplotlib.rc('font', size=14)
 
     ### Plot and save the data ###
     
@@ -250,7 +249,7 @@ def plotWaitingData(data):
             mask = (waiting[i,:] != '-')
             if name == "England":
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(7,5))
+                fig = plt.figure(figsize=(6,4))
                 plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours (million)")
@@ -275,7 +274,7 @@ def plotWaitingData(data):
                 
             elif sum(mask)>=10:
                 NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(7,5))
+                fig = plt.figure(figsize=(6,4))
                 plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours")
@@ -296,7 +295,7 @@ def plotMergedBedData(newName, NHSdata):
      
     allNames, dates, beds = NHSdata
 
-    fig = plt.figure(figsize=(7,5))
+    fig = plt.figure(figsize=(6,4))
     ax = fig.add_subplot(111)
     
     # plot main data
@@ -346,7 +345,7 @@ def plotBeds(name, dates, beds):
         
     ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
     
-    fig = plt.figure(figsize=(7,5))
+    fig = plt.figure(figsize=(6,4))
     if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
         bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
          (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
@@ -377,10 +376,10 @@ def plotBedData(data):
     # format name to match waiting data
     names = capitaliseFirst(names)
     
-    import matplotlib
+    
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
     matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rc('font', size=20)
+    matplotlib.rc('font', size=14)
 
     #### Plot and save the data ####
     
@@ -401,7 +400,7 @@ def plotBedData(data):
     #### Plot trust change pie chart #### 
     more, same, fewer = bed_change_per_trust(names, beds)
     
-    plt.figure(figsize = (7,5))
+    plt.figure(figsize = (6,4))
     labels = 'Fewer Beds', 'Same*', 'More Beds'
     sizes = [fewer, same, more]
     
@@ -416,7 +415,7 @@ def plotBedData(data):
     plt.tight_layout()
     plt.annotate("* change smaller than 50 beds.", 
                  (0.2, -1.2), size = 13, color = "gray")
-    plt.savefig("figures/BedsPieChart.png")      
+    plt.savefig("figures/BedsPieChart.svg")      
     plt.close( )      
                 
     print("Done.")
