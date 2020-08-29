@@ -1,6 +1,8 @@
 '''
 Module for building the HowsMyNHS website
 '''
+import news
+
 import numpy as np
 import matplotlib.pyplot as plt
 from brokenaxes import brokenaxes
@@ -9,6 +11,8 @@ str2num = np.vectorize(float)
 intvec = np.vectorize(int)
 
 NHSblue = "#0072CE"
+
+
 
 def dates2num(dates_in):
     dates_out = []
@@ -794,7 +798,7 @@ def generate_meta(name, AnEblock, bedblock):
     
     return meta_HTML
 
-def build_trust_pages(waiting_data, beds_data):
+def build_trust_pages(waiting_data, beds_data, news_file):
     print("Building trust pages...", end = " ")
     
     # Load data
@@ -804,6 +808,9 @@ def build_trust_pages(waiting_data, beds_data):
     names2 = capitaliseFirst(names2)
     allNames = combineNames(names1, names2)
    
+    # Load news
+    newsDict = news.makeNewsDictionary(allNames,news_file)
+    
     # list of old trusts
     oldTrusts = get_all_dict_values(mergered_trusts)
     for i, name in enumerate(allNames):
@@ -824,7 +831,8 @@ def build_trust_pages(waiting_data, beds_data):
             
             tab_HTML = '<div class="tab">' + \
             "<button class=\"tablinks\" onclick=\"openCity(event, 'AnE')\" id=\"defaultOpen\">A&E Waiting Times</button>"*AnEblock + \
-            "<button class=\"tablinks\" onclick=\"openCity(event, 'beds')\" id=\"defaultOpen\">Number of Beds</button>"*bedblock + "</div>"
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'beds')\" id=\"defaultOpen\">Number of Beds</button>"*bedblock + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'news')\" id=\"defaultOpen\">News</button></div>" 
             
             
             supTextHTML = ""
@@ -835,6 +843,8 @@ def build_trust_pages(waiting_data, beds_data):
             if bedblock:
                 supTextHTML += "<div id=\"beds\" class=\"tabcontent\">" + make_bed_block(beds_data, name) + "</div>\n"
                 
+            supTextHTML += news.makeNewsBlock(name, newsDict)
+            
             supTextHTML += "</div>\n"
             
             file.write(''.join([headHTML1,headHTML2.format(name, meta_HTML),subTitleHTML,tab_HTML,

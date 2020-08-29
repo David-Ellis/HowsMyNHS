@@ -6,6 +6,18 @@ from pandas_ods_reader import  read_ods
 import numpy as np
 
 def sanitize_names(names):
+    '''
+    Parameters
+    ----------
+    names : list
+        List of trust names.
+
+    Returns
+    -------
+    list
+        list of trust names with trailing spaces removed.
+
+    '''
     names = list(names)
     # Remove all trailing spaces
     for i, name in enumerate(names):
@@ -14,6 +26,19 @@ def sanitize_names(names):
     return np.asarray(names)
 
 def collectTrustNews(name, allNewsArray):
+    '''
+    Parameters
+    ----------
+    name : string
+        Name of the trust.
+    allNewsArray : array
+        Raw array containing everything in the ods news file.
+
+    Returns
+    -------
+    newsItems : list
+        A list of each of the news items for the trust
+    '''
     names = sanitize_names(allNewsArray[:,0])
     #print(names, ">>>>>>"+name+"\n\n\n\n\n")
     releventItems = allNewsArray[names == name]
@@ -23,6 +48,19 @@ def collectTrustNews(name, allNewsArray):
     return newsItems
 
 def makeNewsDictionary(allNames, newsFile):
+    '''
+    Parameters
+    ----------
+    allNames : list
+        All names of trusts on the website.
+    newsFile : string
+        ods spreadsheet name containing the news items.
+
+    Returns
+    -------
+    news_dict : dict
+        Dictionary containing all the news items attributed to each trust.
+    '''
     df = read_ods(newsFile, 1, headers=False)
     everything = df.values[4:,:]
     
@@ -34,6 +72,9 @@ def makeNewsDictionary(allNames, newsFile):
     return news_dict
     
 def makeNewsItem(newsItem):
+    '''
+    Builds html for the div which contains an invidual news item
+    '''
     _, title, source,date, url, theme, decription, \
     paywall, img_src, img_alt = newsItem
     
@@ -62,8 +103,10 @@ def makeNewsItem(newsItem):
     return itemHTML
 
 def makeNewsBlock(name, newsDict):
-    '''Returns news block HTML for trust name based of the contents of 
-    newsDict.'''    
+    '''
+    Returns news block HTML for trust name based of the contents of 
+    newsDict.
+    '''    
 
     trust_news = newsDict[name]
     if len(trust_news)==0:
@@ -83,7 +126,8 @@ noNewsHTML = '''
     		<p>Unfortunatly, we don't have any news articles for this trust right now.
                 If if you know of a news article that you think we should include, please
                 <a href="mailto:nhs_news@howsmynhs.co.uk?subject=Article Suggestion">
-                contact us now</a>.</p>
+                email us</a> or <a href="https://twitter.com/HowsMyNHS">send us a tweet</a>.
+            </p>
     
     	</div>
     </div>
@@ -94,7 +138,8 @@ missing_somthing = '''
     		<h3>Something Missing?</h3>
     		<p>If there's an article about this NHS Trust you think we should 
             include, <a href="mailto:nhs_news@howsmynhs.co.uk?subject=Article Suggestion">
-                contact us now</a>.</p>
+                email us</a> or <a href="https://twitter.com/HowsMyNHS">send us a tweet</a>.
+            </p>
     	</div>
 '''
 
@@ -104,6 +149,6 @@ if __name__ == "__main__":
     newsDict = makeNewsDictionary(allNames,newsFile)
     
     name = allNames[2]
-    print(makeNewsBlock(name, newsDict))
+    print(makeNewsBlock("Manchester University NHS Foundation Trust", newsDict))
         
     
