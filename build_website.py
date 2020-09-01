@@ -994,8 +994,8 @@ headHTML2 ='''<title>How's my NHS? - {}</title>
 
 </head>
 <body>
-<div class="maintitle">
-<h1><center><a href="../index.html"><img src="../logo.png" alt="How's my NHS?" width="392" height="230"/></a></center></h1>
+<div class="maintitle2">
+<a href="../index.html"><img src="../logo.png" alt="How's my NHS?"/></a>
 </div>'''
 
 tailHTML = '''
