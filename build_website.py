@@ -904,16 +904,15 @@ homeHTML1 = '''
     waiting long hours at A&E at your local NHS Trust? How many beds does your 
     Trust have? How has this all changed over time? Find out here.">
     <meta name="keywords" content="NHS, A&E, Overnight beds, data">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="style.css">
 
 </head>
 <body>
 <div class="maintitle">
-<h1><center><a href="index.html"><img src="logo.png" alt="How's my NHS?" /></a></center></h1>
+<a href="index.html"><img src="logo.png" alt="How's my NHS?" /></a>
 </div>
 
-<center>
 <div class="searchbox">
 <div class="description">
 <p style="padding: 0px; margin: 0px; padding-bottom: 10px;">
@@ -990,6 +989,8 @@ headHTML2 ='''<title>How's my NHS? - {}</title>
 
 <!-- meta data-->
 {}
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
 <body>
