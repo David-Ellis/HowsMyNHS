@@ -825,7 +825,7 @@ def build_trust_pages(waiting_data, beds_data, news_file):
                         
             subTitleHTML = '''
             <div class = \"box\">
-            \n<h2 class = \"subtitle\"><center>{}</center></h2>\n'''.format(name)
+            \n<h2 class = \"subtitle\">{}</h2>\n'''.format(name)
             
             
             tab_HTML = '<div class="tab">' + \

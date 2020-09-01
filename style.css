@@ -1,15 +1,15 @@
 body {
   background: white;
   text: black;
+  font-family: Verdana, Geneva, sans-serif;
 }
 
 .maintitle{
  text-align: center;
- margin-top: 80px;
+ margin-top: 50px;
  font-size:50px;
- font-family: Verdana, Geneva, sans-serif;
  color: black;
- margin-bottom: 0px;
+ margin-bottom: 10px;
 }
 
 .maintitle img{
@@ -21,7 +21,6 @@ body {
  text-align: center;
  margin-top: 30px;
  font-size:50px;
- font-family: Verdana, Geneva, sans-serif;
  color: black;
  margin-bottom: 0px;
 }
@@ -40,17 +39,15 @@ body {
 }
 
 .description{
- 
  border-radius: 30px 30px 0px 0px;
  font-size:22px;
  text-align: left;
- font-family: Verdana, Geneva, sans-serif;
- color: black;
  padding: 20px;
  padding-bottom: 2px;
  margin: 0; 
  background-color: #0072CE; /* background color */
  color:white; /* text color */
+ text-shadow: 1px 1px black;
 }
 
 a {
@@ -60,7 +57,8 @@ a {
 .subtitle{
  margin-top:0px;
  font-size:40px;
- font-family: Verdana, Geneva, sans-serif;
+ text-shadow: 1px 1px lightgray;
+ text-align: center;
 }
 
 #myInput {
@@ -68,11 +66,10 @@ a {
   background-color: #E8EDEE;
   margin: 0px;
   margin-top: -2px;
-  font-family: Verdana, Geneva, sans-serif;
   background-position: 10px 15px; /* Position the search icon */
   background-size: 30px;
   background-repeat: no-repeat; /* Do not repeat the icon image */
-  font-size: 30px; /* Increase font-size */
+  font-size: 25px; /* Increase font-size */
   padding: 12px 20px 12px 50px; /* Add some padding */
   border: 1px solid #ddd; /* Add a grey border */
   margin-bottom: 0px; /* Add some space below the input */
@@ -95,7 +92,6 @@ a {
   text-align: center;
   max-width:700px;
   font-family: Verdana, Geneva, sans-serif;
-  width: 70%%; /* Full-width */
   border: 1px solid #ddd; /* Add a border to all links */
   margin-top: -1px; /* Prevent double borders */
   background-color: #f6f6f6; /* Grey background color */
@@ -111,7 +107,6 @@ a {
 }
 
 .box {
-  /*border-style: dotted;*/
   margin:auto; 
   overflow:auto;
   float: center;
@@ -123,7 +118,7 @@ a {
 
 .box img{
   width: 100%;
-  max-width: 700px;
+  max-width: 600px;
   margin; auto;
 }
 
@@ -327,7 +322,10 @@ a img {
 }
 
 #news-missing h3 {
+	font-size: 16px;
 	color: #990000;
 	text-align: center;
 	text-decoration: underline;
+	margin-bottom: 5px;
+	margin-top: 0px;
 }
