@@ -3,6 +3,8 @@ User-agent: *
 Disallow: /_pycache/
 Disallow: /.ipynb_checkpoint/
 Disallow: README.md
+Disallow: /build_website/
+Disallow: /data/
 Disallow: *.ipynb
 Disallow: *.npy
 Disallow: *.py
