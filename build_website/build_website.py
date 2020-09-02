@@ -2,37 +2,27 @@
 Module for building the HowsMyNHS website
 '''
 import news
+import build_website.process_data as pd
 
 import numpy as np
-import matplotlib.pyplot as plt
-from brokenaxes import brokenaxes
-import matplotlib
+
 
 str2num = np.vectorize(float)
 intvec = np.vectorize(int)
 
 NHSblue = "#0072CE"
 
-
-
-def dates2num(dates_in):
-    dates_out = []
-    for period in dates_in:
-        year = float(period.split('/')[1])
-        month = float(period.split('/')[0])
-        dates_out.append(year+month/12)
-    return np.asarray(dates_out)
-
-def movingAverage(data, N=3):
-    cumsum, moving_aves = [0], []
-
-    for i, x in enumerate(data, 1):
-        cumsum.append(cumsum[i-1] + x)
-        if i>=N:
-            moving_ave = (cumsum[i] - cumsum[i-N])/N
-            #can do stuff with moving_ave here
-            moving_aves.append(moving_ave)
-    return moving_aves
+# Merged trusts
+mergered_trusts = {
+    "Bedfordshire Hospitals NHS Foundation Trust": \
+        ['Bedford Hospital NHS Trust',
+         'Luton And Dunstable University Hospital NHS Foundation Trust'],
+        
+    "Mid And South Essex NHS Foundation Trust" : \
+        ["Basildon And Thurrock University Hospitals NHS Foundation Trust",
+          "Mid Essex Hospital Services NHS Trust",
+          "Southend University Hospital NHS Foundation Trust"]
+}
 
 def format_number(num):
     '''rounds number to nearest hundred and adds commas'''
@@ -50,398 +40,6 @@ def get_names(data_file, output = False):
         for name in names:
             print(name)
     return names
-
-def all_dict_values_generator(d):
-    ''' From Michael Dorner on StackOverflow:
-        https://stackoverflow.com/users/1864294/michael-dorner'''
-    if isinstance(d, dict):
-        for v in d.values():
-            yield from all_dict_values_generator(v)
-    elif isinstance(d, list):
-        for v in d:
-            yield from all_dict_values_generator(v)
-    else:
-        yield d 
-        
-def get_all_dict_values(d):
-    gen = all_dict_values_generator(d)
-    output = []
-    for item in gen:
-        output.append(item)
-    return output
-        
-def capitaliseFirst(string_list):
-    '''Capitalised the first letter of each word in each string in a list
-except NHS which should be in all-caps'''
-    
-    for i, string in enumerate(string_list):
-        words = string.split(" ")
-        words = [word[0].upper() + word[1:] for word in words]
-        string_list[i] = " ".join(words).replace("Nhs", "NHS")
-        
-    return string_list
-
-########################## Generate Plots ###########################
-
-def make_label(name):
-    #print(name)
-    words = np.asarray(name.split(" "))
-    #print(np.asarray(words) == "Hospital")
-    
-    mask = (words == "Hospital") | (words == "Hospitals") | \
-        (words == "University") | (words == "NHS")
-        
-    # make sure that one of these final words is in the name 
-    assert sum(mask) > 0, \
-        "Error: \'final\' label word not found for {}".format(name)
-        
-    final_word = np.where(mask)[0][0]
-        
-    words = words[0:final_word]
-    label = ' '.join(words)
-    return label
-
-# Merged trusts
-mergered_trusts = {
-    "Bedfordshire Hospitals NHS Foundation Trust": \
-        ['Bedford Hospital NHS Trust',
-         'Luton And Dunstable University Hospital NHS Foundation Trust'],
-        
-    "Mid And South Essex NHS Foundation Trust" : \
-        ["Basildon And Thurrock University Hospitals NHS Foundation Trust",
-          "Mid Essex Hospital Services NHS Trust",
-          "Southend University Hospital NHS Foundation Trust"]
-}
-
-def combineAnEData(allData, allNames, merged_trust):
-    ''' Combines (adds) the data for given list of trusts. 
-        Combined data is only given for dates at which *all*
-        listed trusts reported numbers.
-    '''
-    # initite total and mask
-    totalData = np.zeros(len(allData[0,:]), dtype = object)
-    
-    newTrustData = allData[allNames == merged_trust][0]
-    
-    newTrustMask = np.asarray(newTrustData != "-")
-    
-    totalData[newTrustMask] = newTrustData[newTrustMask]
-    
-    # Add all data together and make mask for dates at while all trusts
-    # provided data.
-    OldDataMask = np.ones(len(totalData), dtype = bool)
-    for oldTrust in mergered_trusts[merged_trust]:
-        
-        assert oldTrust in allNames, "Error: {} data not found".format(oldTrust)
-        
-        oldTrustData = allData[allNames == oldTrust][0]
-        newMask = np.asarray(oldTrustData != "-")
-        
-        totalData[newMask] += oldTrustData[newMask]
-        OldDataMask = OldDataMask & newMask
-         
-    finalMask = OldDataMask | newTrustMask
-    #print(len(finalMask), len(totalData))
-    totalData[np.invert(finalMask)] = "-"
-    
-    return totalData, finalMask
- 
-def combineBedData(bedData, allNames, merged_trust):
-    '''Calculates total number of overnight beds for trusts that merged into 
-    a final merged trust, as stored in the global merged_trusts dictionary'''
-    
-    # initite total and mask
-    totalBeds = np.zeros(len(bedData[0,:]), dtype = object)
-   
-    # Add new trust data
-    newTrustBeds = bedData[allNames == merged_trust][0]
-    
-    totalMask = np.asarray(newTrustBeds != "-")
-    totalBeds[totalMask] += newTrustBeds[totalMask]
-    
-    # Add beds for old trusts
-    for oldTrust in mergered_trusts[merged_trust]:
-        
-        assert oldTrust in allNames, "Error: {} data not found".format(oldTrust)
-        
-        oldTrustBeds = bedData[allNames == oldTrust][0]
-        newMask  = np.asarray(oldTrustBeds != "-")
-        totalBeds[newMask] += oldTrustBeds[newMask]
-        
-        totalMask = totalMask | newMask
-        
-    totalBeds[np.invert(totalMask)] = "-"
-    
-    return totalBeds
-   
-def makeFigureName(name, fig_type):
-    fig_prefix = '-'.join(name.lower().split(' '))
-    fig = ''.join([fig_prefix, "-", fig_type,".svg"])
-    fig = fig.replace(',', '') 
-    
-    return fig    
-
-
-def plotMergedWaitingData(name, NHSdata):
-    allNames, dates, _, waitingData = NHSdata
-    dates = dates2num(dates)
-    
-    fig = plt.figure(figsize=(6,4))
-    ax = fig.add_subplot(111)
-    yrange = [0,100]; xrange = [2020,2021]
-    
-    # plot main data
-    i = np.where(allNames == name)[0][0]
-    mask = (waitingData[i,:] != '-')
-    if len(waitingData[i,:][mask])>0:
-        NumWaiting = intvec(str2num(waitingData[i,:][mask]))
-        ax.plot(dates[mask], NumWaiting/1e6,'b.',lw=3)
-        
-        ax.plot(movingAverage(dates[mask]), movingAverage(NumWaiting),
-                 'r-', lw=2)
-        yrange[1] = 1.1*max(NumWaiting)
-        xrange[0] = min(dates[mask])-1/12
-          
-    OldWaiting, OldMask = combineAnEData(waitingData, allNames, name)
-    #print(OldWaiting)
-    ax.plot(dates[OldMask], OldWaiting[OldMask],'b.', alpha = 0.2, ms = 10)
-    ax.plot(movingAverage(dates[OldMask]), movingAverage(OldWaiting[OldMask]),
-             'r-',lw=2)
-    
-    # if max waiting nunber more than current range, extend 
-    # the range
-    #print(OldWaiting)
-    yrange[1] = max(yrange[1],  1.1*max(OldWaiting[OldMask]))
-    # if min date is lower than current range, reduce the 
-    # minimum
-    xrange[0] = min(xrange[0], min(dates[OldMask])-1/12)
-    
-    # make x ticks integers only
-    xup = int(np.ceil(max(dates[OldMask])))+1
-    xdown = int(np.floor(min(dates[OldMask])))
-    xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-    ax.set_xticks(xint)
-    
-    ax.set_ylabel("Number of people\n waiting over 4 hours")
-    ax.plot(-100,0,"r-", label = "3 month average")
-    ax.set_xlim(xrange)
-    ax.set_ylim(yrange)
-    ax.legend(prop = {"size":14},frameon=False, framealpha = 0,loc = 2)
-    fig.tight_layout()
-    
-    return fig
-    
-def plotWaitingData(data):
-    ''' Plot data NHS England A&E 4 hour waiting data'''
-    
-    print("Generating 4 hour waiting time graphs...", end = " ")
-    
-    # Load data
-    NHSdata = np.load(data, allow_pickle=True)
-    
-    names, dates, _, waiting = NHSdata
-    dates = dates2num(dates)
-    
-    matplotlib.rcParams['mathtext.fontset'] = 'stix'
-    matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rc('font', size=14)
-
-    ### Plot and save the data ###
-    
-    # List of old trusts which have since merged into something else
-    oldTrusts = get_all_dict_values(mergered_trusts)
-    for i, name in enumerate(names[:]):
-        if type(name) == str and name not in oldTrusts:
-            mask = (waiting[i,:] != '-')
-            if name == "England":
-                NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(6,4))
-                plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
-                plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
-                plt.ylabel("Number of people\n waiting over 4 hours (million)")
-                
-                # make x ticks integers only
-                xup = int(np.ceil(max(dates[mask])))+1
-                xdown = int(np.floor(min(dates[mask])))
-                xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-                plt.xticks(xint)
-                
-                figName = makeFigureName(name, "waiting")
-                if abs(dates[mask][0]-dates[mask][-1])<1.5:
-                    #print("Small", name)
-                    plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,
-                           loc = 2)
-                plt.tight_layout()
-                plt.savefig("figures/{}".format(figName))
-                plt.close()
-                
-            # Deal with trusts which have merged together.
-            elif name in mergered_trusts.keys():
-                figName = makeFigureName(name, "waiting")
-                fig = plotMergedWaitingData(name, NHSdata)
-                
-                fig.savefig("figures/{}".format(figName))
-                plt.close(fig)
-                
-                
-            elif sum(mask)>=10:
-                NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(6,4))
-                plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
-                plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
-                plt.ylabel("Number of people\n waiting over 4 hours")
-                
-                # make x ticks integers only
-                xup = int(np.ceil(max(dates[mask])))+1
-                xdown = int(np.floor(min(dates[mask])))
-                xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-                plt.xticks(xint)
-                
-                figName = makeFigureName(name, "waiting")
-                if abs(dates[mask][0]-dates[mask][-1])<1.5:
-                    #print("Small:", name)
-                    plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,loc = 2)
-                plt.tight_layout()
-                plt.savefig("figures/{}".format(figName))
-                plt.close()
-                
-    print("Done.")
-    
-    
-def plotMergedBedData(newName, NHSdata):
-    barColours = ["#004684", "#006BC8", "#39A1FC", "#71BCFE"]
-     
-    allNames, dates, beds = NHSdata
-
-    fig = plt.figure(figsize=(6,4))
-    ax = fig.add_subplot(111)
-    
-    # plot main data
-    mainData = beds[allNames == newName][0]
-    mainMask = mainData != "-"
-    if len(mainData[mainMask])>0:
-        ax.bar(dates[mainMask], mainData[mainMask], 
-               lw=3, width = 0.2,color = barColours[0], 
-               label = make_label(newName))
-        
-    # plot old data
-    
-    oldDataTotal = np.zeros(len(dates))
-    for i, oldTrustName in enumerate(mergered_trusts[newName]):
-        oldData = beds[allNames == oldTrustName][0]
-        oldDataMask = oldData != "-"
-        
-        ax.bar(dates[oldDataMask], oldData[oldDataMask], 
-                lw=3, width = 0.2,
-                bottom = oldDataTotal[oldDataMask], 
-                color = barColours[i+1],
-                label = make_label(oldTrustName))
-  
-        # determine bottom of the bars
-        if i == 0:
-            oldDataTotal = oldData
-        else:
-            oldDataTotal[oldDataMask] += oldData[oldDataMask]
-            
-    ax.set_ylabel("Total # of Available Beds")
-    ax.set_ylim(0, (1.2 + \
-        len(mergered_trusts[newName])/10)*max(max(oldDataTotal[oldDataMask]), 
-                                              max(mainData[mainMask])))
-    ax.legend(prop={"size":14},frameon=False, framealpha = 0, loc=2)
-    fig.tight_layout()
-    
-    return fig  
-
-def plotBeds(name, dates, beds):
-    figName = makeFigureName(name, "beds")
-    
-    # rescale large numbers to be in thousands
-    if max(beds) > 1000:
-        rescale = 1/1000
-    else:
-        rescale = 1
-        
-    ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
-    
-    fig = plt.figure(figsize=(6,4))
-    if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
-        bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
-         (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
-        bax.set_ylabel(ylabel, labelpad = 50)
-    else:
-        bax = fig.add_subplot(111)
-        bax.set_ylim(0, 1.1*max(beds)*rescale)
-        bax.set_ylabel(ylabel)
-    
-    bax.bar(dates, beds*rescale, width=0.18, color = NHSblue)
-    
-    xup = int(np.ceil(max(dates)))+1
-    xdown = int(np.floor(min(dates)))
-    xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-    
-    bax.set_xticks(xint)
-    
-    fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
-    plt.close(fig)
-
-def plotBedData(data):
-    ''' Plot the number of beds at NHS England Trusts'''
-    
-    print("Generating graphs for the number of beds ...", end = " ")
-    
-    # Load data
-    NHSdata = np.load(data, allow_pickle=True)
-    
-    names, dates, beds = NHSdata
-    # format name to match waiting data
-    names = capitaliseFirst(names)
-    
-    
-    matplotlib.rcParams['mathtext.fontset'] = 'stix'
-    matplotlib.rcParams['font.family'] = 'sans-serif'
-    matplotlib.rc('font', size=14)
-
-    #### Plot and save the data ####
-    
-    # List of old trusts which have since merged into something else
-    oldTrusts = get_all_dict_values(mergered_trusts)
-    for i, name in enumerate(names[:]):
-        if type(name) == str and not (name in oldTrusts):
-            figName = makeFigureName(name, "beds")
-            mask = (beds[i,:] != '-')     
-            if name in mergered_trusts.keys():
-                #print("Merged!!!!!")
-                fig = plotMergedBedData(name, NHSdata)
-                fig.savefig("figures/{}".format(figName))
-                plt.close()
-            elif sum(mask)>=4:
-                plotBeds(name, dates[mask],  beds[i,:][mask])
-
-    #### Plot trust change pie chart #### 
-    more, same, fewer = bed_change_per_trust(names, beds)
-    
-    plt.figure(figsize = (6,4))
-    labels = 'Fewer Beds', 'Same*', 'More Beds'
-    sizes = [fewer, same, more]
-    
-    colors = ['lightcoral', 'lightgray', 'yellowgreen']
-    explode = (0.05, 0.0, 0.0)  # explode 1st slice
-    
-    # Plot
-    plt.pie(sizes, explode=explode, labels=labels, colors=colors,
-    autopct='%1.1f%%', shadow=True, startangle=140)
-    
-    plt.axis('equal')
-    plt.tight_layout()
-    plt.annotate("* change smaller than 50 beds.", 
-                 (0.2, -1.2), size = 13, color = "gray")
-    plt.savefig("figures/BedsPieChart.svg")      
-    plt.close( )      
-                
-    print("Done.")
-
 
 def combineNames(names1, names2):
     '''Makes a single list of each name appearing in either list'''
@@ -464,7 +62,7 @@ def MakeHomepage(waiting_data, bed_data):
     # Load data
     names1, _, _, waiting = np.load(waiting_data, allow_pickle=True)
     names2, _, beds = np.load(bed_data, allow_pickle=True)
-    names2 = capitaliseFirst(names2)
+    names2 = pd.capitaliseFirst(names2)
     
     allNames = combineNames(names1, names2)
     
@@ -473,7 +71,7 @@ def MakeHomepage(waiting_data, bed_data):
     for i, name in enumerate(allNames):
         # Check if the trust is in contained in the values of merged_trust
         # i.e. is it an old trust which has since merged into something else.
-        oldTrust = name in get_all_dict_values(mergered_trusts)
+        oldTrust = name in pd.get_all_dict_values(mergered_trusts)
         if type(name) == str and not oldTrust:
             ane_points, bed_points = 0, 0
             merged = name in mergered_trusts.keys()
@@ -503,7 +101,7 @@ def make_AnE_waiting_block(data, name):
     TODO: Turn big chunks of text into global variables defined below with the other text.
     '''
     names, dates, attendance, waiting = np.load(data, allow_pickle=True)
-    dates = dates2num(dates)
+    dates = pd.dates2num(dates)
     i = np.where(names == name)[0][0]
     
     
@@ -512,12 +110,18 @@ def make_AnE_waiting_block(data, name):
         waitingData = waiting [i,:]
     else:
         # Combine merged trust data
-        attendanceData, _ = combineAnEData(attendance, names, name)
-        waitingData, _ = combineAnEData(waiting, names, name)
+        attendanceData, _ = pd.combineAnEData(attendance, 
+                                              names,
+                                              name,
+                                              mergered_trusts)
+        waitingData, _ = pd.combineAnEData(waiting, 
+                                           names, 
+                                           name,
+                                           mergered_trusts)
         
     if i == 0:
         # Get figure path
-        figName = makeFigureName(name, "waiting")
+        figName = pd.makeFigureName(name, "waiting")
         path = "../figures/{}".format(figName)
 
         
@@ -539,13 +143,13 @@ def make_AnE_waiting_block(data, name):
         
     elif sum(attendanceData != '-')>=10:
         # Get figure path
-        figName = makeFigureName(name, "waiting")
+        figName = pd.makeFigureName(name, "waiting")
         path = "../figures/{}".format(figName)
         
         imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path,
              "A&E waiting data for {} - Number of people waiting over four hours each month.".format(name))
         
-        smoothWait = movingAverage(waitingData[waitingData != '-'])
+        smoothWait = pd.movingAverage(waitingData[waitingData != '-'])
         avAtt = np.mean(attendanceData[attendanceData != '-'])
         #print(waiting[i,:] != '-')
         #print(dates)
@@ -639,33 +243,7 @@ def make_AnE_waiting_block(data, name):
             
     return chunk
     
-def bed_change_per_trust(names, bed_data):
-    better = 0
-    worse = 0
-    same = 0
-    
-    oldTrusts = get_all_dict_values(mergered_trusts)
-    numTrusts = 0
-    for i, name in enumerate(names):
-        if name != "England" and name not in oldTrusts:
-            if name not in mergered_trusts.keys():
-                trust_beds = bed_data[i]
-            else:
-                trust_beds = combineBedData(bed_data, names, name)
-            
-            trust_beds = trust_beds[trust_beds!='-']
-            
-            if len(trust_beds) >= 2:
-                numTrusts += 1
-                change = (trust_beds[0]-trust_beds[-1])
-                if change>=50:
-                    better += 1
-                elif change<=-50:
-                    worse += 1
-                else:
-                    same += 1
-    
-    return better/numTrusts*100, same/numTrusts*100, worse/numTrusts*100
+
 
 def make_bed_block(beds_data, name):
     ''' Generates the chunk of HTML relating to the A&E waiting time data for NHS trust <name>.
@@ -674,11 +252,11 @@ def make_bed_block(beds_data, name):
     '''
     names, dates, beds = np.load(beds_data, allow_pickle=True)
     
-    names = capitaliseFirst(names)
+    names = pd.capitaliseFirst(names)
     
     i = np.where(names == name)[0]
     
-    figName = makeFigureName(name, "beds")
+    figName = pd.makeFigureName(name, "beds")
     path = "../figures/{}".format(figName)
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
                     "Number of available overnight beds for {}.".format(name))
@@ -686,7 +264,9 @@ def make_bed_block(beds_data, name):
     england_bed_change = beds[0][-1] - beds[0][0]
     england_bed_change_perc = (beds[0][-1] - beds[0][0])/beds[0][0]*100
     
-    trusts_with_more, _, trust_with_fewer = bed_change_per_trust(names, beds)
+    trusts_with_more, _, trust_with_fewer = pd.bed_change_per_trust(names, 
+                                                                    beds,
+                                                                    mergered_trusts)
     
     # Calculate fractional change
     if name not in mergered_trusts.keys():
@@ -695,7 +275,10 @@ def make_bed_block(beds_data, name):
         change = num_change/beds[i][0][mask][-1]
     else:
         # Combine merged trust data
-        totalBeds = combineBedData(beds, names, name)
+        totalBeds = pd.combineBedData(beds,
+                                      names, 
+                                      name, 
+                                      mergered_trusts)
         mask = totalBeds != "-"
         
         # calculate change
@@ -826,14 +409,14 @@ def build_trust_pages(waiting_data, beds_data, news_file):
     names1, dates, attendance, waiting = np.load(waiting_data, allow_pickle=True)
     names2, dates, beds = np.load(beds_data, allow_pickle=True)
     
-    names2 = capitaliseFirst(names2)
+    names2 = pd.capitaliseFirst(names2)
     allNames = combineNames(names1, names2)
    
     # Load news
     newsDict = news.makeNewsDictionary(allNames,news_file)
     
     # list of old trusts
-    oldTrusts = get_all_dict_values(mergered_trusts)
+    oldTrusts = pd.get_all_dict_values(mergered_trusts)
     for i, name in enumerate(allNames):
         #print(name)
         AnEblock, bedblock = whichChunks(name, names1, names2, attendance, beds)
