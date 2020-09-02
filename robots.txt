@@ -1,0 +1,8 @@
+User-agent: *
+
+Disallow: /_pycache/
+Disallow: /.ipynb_checkpoint/
+Disallow: README.md
+Disallow: *.ipynb
+Disallow: *.npy
+Disallow: *.py

@@ -48,6 +48,7 @@ body {
  background-color: #0072CE; /* background color */
  color:white; /* text color */
  text-shadow: 1px 1px black;
+ /*box-shadow: 10px 10px 20px lightgrey;*/
 }
 
 a {
@@ -71,11 +72,12 @@ a {
   background-repeat: no-repeat; /* Do not repeat the icon image */
   font-size: 25px; /* Increase font-size */
   padding: 12px 20px 12px 50px; /* Add some padding */
-  border: 1px solid #ddd; /* Add a grey border */
+  border: 1px solid #ccc; /* Add a grey border */
   margin-bottom: 0px; /* Add some space below the input */
   width: 100%;
   /*max-width:700px;*/
   margin-bottom: -35px;
+  /*box-shadow: 10px 10px 20px lightgrey;*/
   
 }
 
