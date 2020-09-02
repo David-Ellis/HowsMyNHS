@@ -216,6 +216,12 @@ def plotMergedWaitingData(name, NHSdata):
     # minimum
     xrange[0] = min(xrange[0], min(dates[OldMask])-1/12)
     
+    # make x ticks integers only
+    xup = int(np.ceil(max(dates[OldMask])))+1
+    xdown = int(np.floor(min(dates[OldMask])))
+    xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
+    ax.set_xticks(xint)
+    
     ax.set_ylabel("Number of people\n waiting over 4 hours")
     ax.plot(-100,0,"r-", label = "3 month average")
     ax.set_xlim(xrange)
@@ -253,6 +259,13 @@ def plotWaitingData(data):
                 plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours (million)")
+                
+                # make x ticks integers only
+                xup = int(np.ceil(max(dates[mask])))+1
+                xdown = int(np.floor(min(dates[mask])))
+                xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
+                plt.xticks(xint)
+                
                 figName = makeFigureName(name, "waiting")
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small", name)
@@ -278,6 +291,13 @@ def plotWaitingData(data):
                 plt.plot(dates[mask], NumWaiting,'b.', alpha = 0.2, ms = 10)
                 plt.plot(movingAverage(dates[mask]), movingAverage(NumWaiting), 'r-',label="3 month average",lw=2)
                 plt.ylabel("Number of people\n waiting over 4 hours")
+                
+                # make x ticks integers only
+                xup = int(np.ceil(max(dates[mask])))+1
+                xdown = int(np.floor(min(dates[mask])))
+                xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
+                plt.xticks(xint)
+                
                 figName = makeFigureName(name, "waiting")
                 if abs(dates[mask][0]-dates[mask][-1])<1.5:
                     #print("Small:", name)
@@ -357,9 +377,11 @@ def plotBeds(name, dates, beds):
     
     bax.bar(dates, beds*rescale, width=0.18, color = NHSblue)
     
+    xup = int(np.ceil(max(dates)))+1
+    xdown = int(np.floor(min(dates)))
+    xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
     
-    
-    
+    bax.set_xticks(xint)
     
     fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
     plt.close(fig)
