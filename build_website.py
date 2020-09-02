@@ -713,7 +713,7 @@ def make_bed_block(beds_data, name):
         percentage_change = abs(change)*100
        
         chunk = beds_worse.format(name, format_number(-num_change), start_date, 
-           percentage_change, imgHTML, england_bed_change, 
+           int(percentage_change), imgHTML, england_bed_change, 
            int(england_bed_change_perc), int(trust_with_fewer),
            int(trusts_with_more), brexit_et_al)
         
@@ -727,8 +727,8 @@ def make_bed_block(beds_data, name):
     elif change > 0.05:
         # Things are better
         start_date = int(np.floor(dates[mask][-1]))
-        chunk = beds_better.format(name, int(trusts_with_more), start_date, format_number(num_change),
-                     imgHTML,england_bed_change, 
+        chunk = beds_better.format(name, int(trusts_with_more), start_date, 
+                format_number(num_change), imgHTML,england_bed_change, 
            int(england_bed_change_perc), int(trust_with_fewer),
            int(trusts_with_more), brexit_et_al)
    
@@ -1052,7 +1052,7 @@ england_beds = u'''
             '''
 
 beds_worse = u'''
-            <p>Under Conservative leadership, {} has around {} fewer beds than in {}. That's a {:.2}% drop in the number of beds for those who might desperately need them.<p>
+            <p>Under Conservative leadership, {} has around {} fewer beds than in {}. That's a {}% drop in the number of beds for those who might desperately need them.<p>
 
             {}
             
