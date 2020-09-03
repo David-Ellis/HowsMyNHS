@@ -2,6 +2,11 @@ body {
   background: white;
   text: black;
   font-family: Verdana, Geneva, sans-serif;
+  
+}
+
+a:link {
+  text-decoration: none ;
 }
 
 .maintitle{
@@ -328,7 +333,7 @@ a img {
 	font-size: 16px;
 	color: #990000;
 	text-align: center;
-	text-decoration: underline;
+	text-decoration: None;
 	margin-bottom: 5px;
 	margin-top: 0px;
 }
