@@ -27,10 +27,21 @@ intvec = np.vectorize(int)
 # TODO: get plotting colours as arguments
 NHSblue = "#0072CE"
 
+
+oldTrusts = np.array(["Bedford Hospital NHS Trust", 
+                      "Luton And Dunstable University Hospital NHS Foundation Trust",
+                      "Basildon And Thurrock University Hospitals NHS Foundation Trust",
+                      "Mid Essex Hospital Services NHS Trust",
+                      "Southend University Hospital NHS Foundation Trust",
+                      "Royal Liverpool And Broadgreen University Hospitals NHS Trust",
+                      "Aintree University Hospital NHS Foundation Trust",
+                      "Central Manchester University Hospitals NHS Foundation Trust",
+                      "University Hospital Of South Manchester NHS Foundation Trust"])
+
 def make_label(name):
     ''' 
     Reduces NHS trust name to key part
-        i.e. whatever is before "Hospital(s)","University" or "NHS".
+        i.e Removes words like "NHS", "Trust", "Of", "Foundation" etc...
 
     Parameters
     ----------
@@ -42,21 +53,21 @@ def make_label(name):
     label : string
         Shortened NHS trust name.
     '''
-    #print(name)
-    words = np.asarray(name.split(" "))
-    #print(np.asarray(words) == "Hospital")
     
-    mask = (words == "Hospital") | (words == "Hospitals") | \
-        (words == "University") | (words == "NHS")
-        
-    # make sure that one of these final words is in the name 
-    assert sum(mask) > 0, \
-        "Error: \'final\' label word not found for {}".format(name)
-        
-    final_word = np.where(mask)[0][0]
-        
-    words = words[0:final_word]
-    label = ' '.join(words)
+    remove = ["Trust", "Foundation", "NHS","University", "Hospital",
+              "Hospitals", "Of"]
+    
+    def check(word):
+        if word in remove:
+            return False
+        else:
+            return True
+    
+    words = np.asarray(name.split(" "))
+    
+    filtered_words = filter(check, words)
+    
+    label = ' '.join(filtered_words)
     
     return label
 
@@ -69,16 +80,16 @@ def plotMergedWaitingData(name, NHSdata):
     yrange = [0,100]; xrange = [2020,2021]
     
     # plot main data
-    i = np.where(allNames == name)[0][0]
-    mask = (waitingData[i,:] != '-')
-    if len(waitingData[i,:][mask])>0:
-        NumWaiting = intvec(str2num(waitingData[i,:][mask]))
-        ax.plot(dates[mask], NumWaiting/1e6,'b.',lw=3)
+    # i = np.where(allNames == name)[0][0]
+    # mask = (waitingData[i,:] != '-')
+    # if len(waitingData[i,:][mask])>0:
+    #     NumWaiting = intvec(str2num(waitingData[i,:][mask]))
+    #     ax.plot(dates[mask], NumWaiting/1e6,'b.',lw=3)
         
-        ax.plot(pd.movingAverage(dates[mask]), pd.movingAverage(NumWaiting),
-                 'r-', lw=2)
-        yrange[1] = 1.1*max(NumWaiting)
-        xrange[0] = min(dates[mask])-1/12
+    #     ax.plot(pd.movingAverage(dates[mask]), pd.movingAverage(NumWaiting),
+    #              'r-', lw=2)
+    #     yrange[1] = 1.1*max(NumWaiting)
+    #     xrange[0] = min(dates[mask])-1/12
           
     OldWaiting, OldMask = pd.combineAnEData(waitingData,
                                             allNames,

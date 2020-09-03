@@ -21,8 +21,19 @@ mergered_trusts = {
     "Mid And South Essex NHS Foundation Trust" : \
         ["Basildon And Thurrock University Hospitals NHS Foundation Trust",
           "Mid Essex Hospital Services NHS Trust",
-          "Southend University Hospital NHS Foundation Trust"]
+          "Southend University Hospital NHS Foundation Trust"],
+        
+    "Manchester University NHS Foundation Trust" : \
+        ["Central Manchester University Hospitals NHS Foundation Trust",
+         "University Hospital Of South Manchester NHS Foundation Trust"],
+        
+    "Liverpool University Hospitals NHS Foundation Trust" : \
+        ["Royal Liverpool And Broadgreen University Hospitals NHS Trust",
+         "Aintree University Hospital NHS Foundation Trust"]
+        
 }
+
+
 
 def format_number(num):
     '''rounds number to nearest hundred and adds commas'''
