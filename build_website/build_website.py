@@ -1,10 +1,15 @@
 '''
 Module for building the HowsMyNHS website
 '''
-import news
+
+# standard python packages
+import numpy as np
+
+# local packages
+import build_website.news as news
 import build_website.process_data as pd
 
-import numpy as np
+
 
 
 str2num = np.vectorize(float)
