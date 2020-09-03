@@ -270,6 +270,7 @@ a img {
 #news-text p {
 	margin: 0px;
 	padding: 0px;	
+	min-height: 35px;
 }
 #news-item img {
     max-width: 150px;
