@@ -12,7 +12,7 @@ import matplotlib
 from brokenaxes import brokenaxes
 
 # local packages
-import build_website.process_data as pd
+import build_website.process_data as proc
 from build_website.build_website import mergered_trusts
 
 # define plotting style
@@ -26,17 +26,6 @@ intvec = np.vectorize(int)
 
 # TODO: get plotting colours as arguments
 NHSblue = "#0072CE"
-
-
-oldTrusts = np.array(["Bedford Hospital NHS Trust", 
-                      "Luton And Dunstable University Hospital NHS Foundation Trust",
-                      "Basildon And Thurrock University Hospitals NHS Foundation Trust",
-                      "Mid Essex Hospital Services NHS Trust",
-                      "Southend University Hospital NHS Foundation Trust",
-                      "Royal Liverpool And Broadgreen University Hospitals NHS Trust",
-                      "Aintree University Hospital NHS Foundation Trust",
-                      "Central Manchester University Hospitals NHS Foundation Trust",
-                      "University Hospital Of South Manchester NHS Foundation Trust"])
 
 def make_label(name):
     ''' 
@@ -70,58 +59,125 @@ def make_label(name):
     label = ' '.join(filtered_words)
     
     return label
+    
+def fix_xticks(ax, xdata):
+    '''
+    Makes x-ticks into integers
 
-def plotMergedWaitingData(name, NHSdata):
-    allNames, dates, _, waitingData = NHSdata
-    dates = pd.dates2num(dates)
-    
-    fig = plt.figure(figsize=(6,4))
-    ax = fig.add_subplot(111)
-    yrange = [0,100]; xrange = [2020,2021]
-    
-    # plot main data
-    # i = np.where(allNames == name)[0][0]
-    # mask = (waitingData[i,:] != '-')
-    # if len(waitingData[i,:][mask])>0:
-    #     NumWaiting = intvec(str2num(waitingData[i,:][mask]))
-    #     ax.plot(dates[mask], NumWaiting/1e6,'b.',lw=3)
+    Parameters
+    ----------
+    ax : matplotlib axes
         
-    #     ax.plot(pd.movingAverage(dates[mask]), pd.movingAverage(NumWaiting),
-    #              'r-', lw=2)
-    #     yrange[1] = 1.1*max(NumWaiting)
-    #     xrange[0] = min(dates[mask])-1/12
-          
-    OldWaiting, OldMask = pd.combineAnEData(waitingData,
-                                            allNames,
-                                            name,
-                                            mergered_trusts)
-    #print(OldWaiting)
-    ax.plot(dates[OldMask], OldWaiting[OldMask],'b.', alpha = 0.2, ms = 10)
-    ax.plot(pd.movingAverage(dates[OldMask]), pd.movingAverage(OldWaiting[OldMask]),
-             'r-',lw=2)
-    
-    # if max waiting nunber more than current range, extend 
-    # the range
-    #print(OldWaiting)
-    yrange[1] = max(yrange[1],  1.1*max(OldWaiting[OldMask]))
-    # if min date is lower than current range, reduce the 
-    # minimum
-    xrange[0] = min(xrange[0], min(dates[OldMask])-1/12)
+    xdata : list
+        list of graphs x data
+
+    Returns
+    -------
+    ax : matplotlib axes
+        axes with the xticks as integers
+
+    '''
     
     # make x ticks integers only
-    xup = int(np.ceil(max(dates[OldMask])))+1
-    xdown = int(np.floor(min(dates[OldMask])))
+    xup = int(np.ceil(max(xdata)))+1
+    xdown = int(np.floor(min(xdata)))
+    
+    # if xdata range is greater than 5 then only include every other
+    # integer in the range
     xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
+    
     ax.set_xticks(xint)
     
-    ax.set_ylabel("Number of people\n waiting over 4 hours")
-    ax.plot(-100,0,"r-", label = "3 month average")
-    ax.set_xlim(xrange)
-    ax.set_ylim(yrange)
-    ax.legend(prop = {"size":14},frameon=False, framealpha = 0,loc = 2)
+    return ax
+
+def makeAnEgraph(name, 
+                 waiting_data, 
+                 plot_points = True,
+                 plot_average = True):
+    '''
+    Parameters
+    ----------
+    name : string
+        Trust name.
+    data : list
+        All NHS A&E waiting data with the format
+            [names, dates, attendance, waiting]
+    plot_points : bool
+        All data points should be included on the graph
+    plot_average : bool
+        Three month moving average should be included on the graph
+
+    Returns
+    -------
+    fig : matplotlib figure
+        Figure showing number of people waiting four hours over time.
+
+    '''
+    
+    # unpack data
+    names, dates, _, waiting = waiting_data
+    dates = proc.dates2num(dates)
+    
+    
+    if name in mergered_trusts.keys():
+    
+        waiting, mask = proc.combineAnEData(waiting, 
+                                       names, 
+                                       name, 
+                                       mergered_trusts)
+       
+    else:
+        waiting = waiting[names == name][0]
+        mask = waiting != "-"
+    
+    assert sum(mask) >= 10, "Error: Less than 10 data points for trust:{}".format(name)
+    
+    fig  = plt.figure(figsize=(6,4))
+    ax = fig.add_subplot(111)
+        
+    # Plot in millions
+    if max(waiting[mask]) > 1e5:
+        ax.set_ylabel("People waiting over 4 hours\n(millions)")
+        norm = 1e-6
+    elif max(waiting[mask]) > 1e3:
+        ax.set_ylabel("People waiting over 4 hours\n(thousands)")
+        norm = 1e-3
+    else:
+        ax.set_ylabel("People waiting over 4 hours")
+        norm = 1
+      
+    # If numbers are all very small *and* they are being plotted, then
+    # don't include the moving average
+    if max(waiting[mask]) < 10 and plot_points == True:
+        plot_average == False
+        
+    # Add data points
+    if plot_points == True:
+        ax.plot(dates[mask], 
+                waiting[mask]*norm,
+                'b.', 
+                alpha = 0.2,
+                ms = 10)
+        
+    # Add moving average
+    #    - Only include label if data points aren't included
+    if plot_average == True:
+        ax.plot(proc.movingAverage(dates[mask]), 
+                proc.movingAverage(waiting[mask]*norm), 
+                '-',
+                label="3 month average"*plot_points, 
+                lw=2,
+                color = "#e60000")
+        
+    ax = fix_xticks(ax, dates[mask])
+    ax.legend(prop={"size":14},
+              frameon=False,
+              framealpha = 0, 
+              loc=2)
     fig.tight_layout()
     
     return fig
+
     
 def plotWaitingData(data):
     ''' Plot data NHS England A&E 4 hour waiting data'''
@@ -132,85 +188,30 @@ def plotWaitingData(data):
     NHSdata = np.load(data, allow_pickle=True)
     
     names, dates, _, waiting = NHSdata
-    dates = pd.dates2num(dates)
+    dates = proc.dates2num(dates)
     
-
-
     ### Plot and save the data ###
     
     # List of old trusts which have since merged into something else
-    oldTrusts = pd.get_all_dict_values(mergered_trusts)
+    oldTrusts = proc.get_old_trusts(mergered_trusts)
     for i, name in enumerate(names[:]):
-        if type(name) == str and name not in oldTrusts:
-            mask = (waiting[i,:] != '-')
-            if name == "England":
-                NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(6,4))
-                plt.plot(dates[mask], NumWaiting/1e6,'b.', alpha = 0.2, ms = 10)
-                plt.plot(pd.movingAverage(dates[mask]), pd.movingAverage(NumWaiting/1e6), 'r-',label="3 month average",lw=2)
-                plt.ylabel("Number of people\n waiting over 4 hours (million)")
-                
-                # make x ticks integers only
-                xup = int(np.ceil(max(dates[mask])))+1
-                xdown = int(np.floor(min(dates[mask])))
-                xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-                plt.xticks(xint)
-                
-                figName = pd.makeFigureName(name, "waiting")
-                if abs(dates[mask][0]-dates[mask][-1])<1.5:
-                    #print("Small", name)
-                    plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,
-                           loc = 2)
-                plt.tight_layout()
-                plt.savefig("figures/{}".format(figName))
-                plt.close()
-                
-            # Deal with trusts which have merged together.
-            elif name in mergered_trusts.keys():
-                figName = pd.makeFigureName(name, "waiting")
-                fig = plotMergedWaitingData(name, NHSdata)
-                
-                fig.savefig("figures/{}".format(figName))
-                plt.close(fig)
-                
-                
-            elif sum(mask)>=10:
-                NumWaiting = intvec(str2num(waiting[i,:][mask]))
-                fig = plt.figure(figsize=(6,4))
-                
-                # plot data
-                plt.plot(dates[mask], 
-                         NumWaiting,
-                         'b.',
-                         alpha = 0.2,
-                         ms = 10)
-                
-                # plot moving average
-                plt.plot(pd.movingAverage(dates[mask]), 
-                         pd.movingAverage(NumWaiting), 
-                         'r-',
-                         label="3 month average",
-                         lw=2)
-                
-                plt.ylabel("Number of people\n waiting over 4 hours")
-                
-                # make x ticks integers only
-                xup = int(np.ceil(max(dates[mask])))+1
-                xdown = int(np.floor(min(dates[mask])))
-                xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-                plt.xticks(xint)
-                
-                figName = pd.makeFigureName(name, "waiting")
-                
-                if abs(dates[mask][0]-dates[mask][-1])<1.5:
-                    #print("Small:", name)
-                    plt.xlim([min(dates[mask])-0.2, np.floor(max(dates[mask]))+1])
-                plt.legend(prop={"size": 14},frameon=False, framealpha = 0,loc = 2)
-                plt.tight_layout()
-                plt.savefig("figures/{}".format(figName))
-                plt.close()
-                
+        mask = waiting[i,:] != "-"
+
+        #print(sum(mask))
+        check1 = type(name) == str
+        check2 = name not in oldTrusts
+        check3 = sum(mask)>=10 or name in mergered_trusts.keys()
+        
+        if check1 and check2 and check3:
+            figName = proc.makeFigureName(name, "waiting")
+            
+            fig = makeAnEgraph(name, NHSdata, 
+                               plot_points = True,
+                               plot_average = True)
+              
+            fig.savefig("figures/{}".format(figName))
+            plt.close(fig)             
+           
     print("Done.")
     
     
@@ -262,7 +263,7 @@ def plotMergedBedData(newName, NHSdata):
     return fig  
 
 def plotBeds(name, dates, beds):
-    figName = pd.makeFigureName(name, "beds")
+    figName = proc.makeFigureName(name, "beds")
     
     # rescale large numbers to be in thousands
     if max(beds) > 1000:
@@ -303,15 +304,15 @@ def plotBedData(data):
     
     names, dates, beds = NHSdata
     # format name to match waiting data
-    names = pd.capitaliseFirst(names)
+    names = proc.capitaliseFirst(names)
     
     #### Plot and save the data ####
     
     # List of old trusts which have since merged into something else
-    oldTrusts = pd.get_all_dict_values(mergered_trusts)
+    oldTrusts = proc.get_all_dict_values(mergered_trusts)
     for i, name in enumerate(names[:]):
         if type(name) == str and not (name in oldTrusts):
-            figName = pd.makeFigureName(name, "beds")
+            figName = proc.makeFigureName(name, "beds")
             mask = (beds[i,:] != '-')     
             if name in mergered_trusts.keys():
                 #print("Merged!!!!!")
@@ -322,7 +323,7 @@ def plotBedData(data):
                 plotBeds(name, dates[mask],  beds[i,:][mask])
 
     #### Plot trust change pie chart #### 
-    more, same, fewer = pd.bed_change_per_trust(names,
+    more, same, fewer = proc.bed_change_per_trust(names,
                                              beds,
                                              mergered_trusts)
     

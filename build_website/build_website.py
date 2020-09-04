@@ -413,8 +413,14 @@ def generate_meta(name, AnEblock, bedblock):
         + "Number of hospital beds, " * bedblock \
         + name
 
+    meta_image = "logo.png"
+    
     meta_HTML = '''\t<meta name="description" content="{}">
-    <meta name="keywords" content="{}">'''.format(meta_desc, meta_keywords)
+    <meta name="keywords" content="{}">
+    <meta property="og:image" content="{}">
+    <meta property="og:image:type" content="image/png">'''.format(meta_desc,
+                                                            meta_keywords,
+                                                            meta_image)
     
     return meta_HTML
 

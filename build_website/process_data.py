@@ -50,6 +50,14 @@ def get_all_dict_values(d):
         output.append(item)
     return output
 
+def get_old_trusts(d):
+    old_trusts = np.array([])
+    
+    for key in d.keys():
+        old_trusts = np.concatenate((old_trusts, d[key]))
+        
+    return old_trusts
+
 def capitaliseFirst(string_list):
     '''Capitalised the first letter of each word in each string in a list
 except NHS which should be in all-caps'''
