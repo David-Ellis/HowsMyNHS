@@ -402,18 +402,14 @@ def generate_meta(name, AnEblock, bedblock):
     the number of available overnight beds has fallen. 
     Find out here out {} is doing.'''.format(name)
         
-    meta_keywords = "NHS, " + "A&E waiting data, " * AnEblock \
-        + "Number of hospital beds, " * bedblock \
-        + name
 
     meta_image = "https://howsmynhs.co.uk/figures/og/" + pd.makeFigureName(name, "og", "png")
     
-    meta_title = name + " [Official Data]"
+    meta_title = "How's my NHS? - " + name + " [Official Data]"
     
     meta_url = "https://howsmynhs.co.uk/" + makeURL(name)
     
     meta_HTML = '''\t<meta name="description" content="{}" />
-    <meta name="keywords" content="{}" />
     <!--  General META Tags -->
     <meta property="og:title" content="{}" />
     <meta property="og:image" content="{}" />
@@ -430,7 +426,6 @@ def generate_meta(name, AnEblock, bedblock):
     <meta name="twitter:image" content="{}">
     <meta name="twitter:card" content="summary_large_image">
     '''.format(meta_desc,
-    meta_keywords,
     meta_title,
     meta_image,
     meta_url,
@@ -541,15 +536,33 @@ homeHTML1 = '''
       gtag('config', 'UA-154345093-1');
     </script>
 
-    <title>How's my NHS?</title>
+    <title>How's my NHS? - Offical NHS data for your local NHS Trust</title>
     
-    <meta name="description" content="How many people are
-    waiting long hours at A&E at your local NHS Trust? How many beds does your 
-    Trust have? How has this all changed over time? Find out here.">
-    <meta name="keywords" content="NHS, A&E, Overnight beds, data">
+    <meta name="description" content="Over the last 10 years A&E waiting times have risen and 
+    the number of available overnight beds has fallen. How is your local NHS
+    Trust doing?">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!--  General META Tags -->
+    <meta property="og:title" content="How's my NHS? - Offical NHS data for your local NHS Trust" />
+    <meta property="og:image" content="https://howsmynhs.co.uk/figures/og/england-og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:url" content="https://howsmynhs.co.uk/hospitals/england.html" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="How's My NHS?">
+    
+    <!--  Twitter META Tags -->
+    <meta name="twitter:title" content="How's my NHS? - Offical NHS data for your local NHS Trust">
+    <meta name="twitter:description" content="Over the last 10 years A&E waiting times have risen and 
+    the number of available overnight beds has fallen. How is your local NHS
+    Trust doing?">
+    <meta name="twitter:image" content="https://howsmynhs.co.uk/figures/og/england-og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    
     <link rel="stylesheet" type="text/css" href="style.css">
-
+    
 </head>
 <body>
 <div class="maintitle">
@@ -627,7 +640,7 @@ headHTML1 = '''
 </script>'''
 
 
-headHTML2 ='''<title>How's my NHS? - {}</title>
+headHTML2 ='''<title>How's my NHS? - {} [Official Data]</title>
 <link rel="stylesheet" type="text/css" href="../style.css">
 
 <!-- meta data-->
