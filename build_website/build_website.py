@@ -57,13 +57,7 @@ def get_names(data_file, output = False):
             print(name)
     return names
 
-def combineNames(names1, names2):
-    '''Makes a single list of each name appearing in either list'''
-    namesOut = names1
-    for name in names2:
-        if name not in names1:
-            namesOut = np.append(namesOut, name)
-    return namesOut
+
 
 def makeURL(name):
     url_prefix = '-'.join(name.lower().split(' '))
@@ -80,7 +74,7 @@ def MakeHomepage(waiting_data, bed_data):
     names2, _, beds = np.load(bed_data, allow_pickle=True)
     names2 = pd.capitaliseFirst(names2)
     
-    allNames = combineNames(names1, names2)
+    allNames = pd.combineNames(names1, names2)
     
     # Make list of hospital names
     hospitalLinksList = []
@@ -354,7 +348,7 @@ def make_bed_block(beds_data, name):
         
     return chunk   
 
-def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
+def whichChunks(name, ane_names, bed_names, all_waiting, all_beds):
     '''Determins which HTML chunks are needed 
     
     Returns: Boolian array
@@ -365,7 +359,7 @@ def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
     
     # Check if A&E block is needed
     if name in ane_names:
-        attendence = all_attendence[ane_names == name]
+        attendence = all_waiting[ane_names == name]
         ane_points = len(attendence[attendence != "-"])
         if ane_points >= 10:
             ane_block = True
@@ -374,7 +368,7 @@ def whichChunks(name, ane_names, bed_names, all_attendence, all_beds):
     if name in mergered_trusts.keys():
         for oldTrust in mergered_trusts[name]:
             if oldTrust in ane_names:
-                attendence = all_attendence[ane_names == oldTrust]
+                attendence = all_waiting[ane_names == oldTrust]
                 #print(oldTrust, attendence)
                 ane_points = len(attendence[attendence != "-"])
                 if ane_points >= 10:  
@@ -432,7 +426,7 @@ def build_trust_pages(waiting_data, beds_data, news_file):
     names2, dates, beds = np.load(beds_data, allow_pickle=True)
     
     names2 = pd.capitaliseFirst(names2)
-    allNames = combineNames(names1, names2)
+    allNames = pd.combineNames(names1, names2)
    
     # Load news
     newsDict = news.makeNewsDictionary(allNames,news_file)

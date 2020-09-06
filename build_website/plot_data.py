@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Plotting website data
 """
@@ -7,13 +6,16 @@ Plotting website data
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+from matplotlib.image import imread
+from matplotlib import patches
+import os
 
 # third party packages
 from brokenaxes import brokenaxes
 
 # local packages
 import build_website.process_data as proc
-from build_website.build_website import mergered_trusts
+from build_website.build_website import mergered_trusts, whichChunks
 
 # define plotting style
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
@@ -91,9 +93,8 @@ def fix_xticks(ax, xdata):
     return ax
 
 def makeAnEgraph(name, 
-                 waiting_data, 
-                 plot_points = True,
-                 plot_average = True):
+                  waiting_data, 
+                  legend = True):
     '''
     Parameters
     ----------
@@ -102,10 +103,8 @@ def makeAnEgraph(name,
     data : list
         All NHS A&E waiting data with the format
             [names, dates, attendance, waiting]
-    plot_points : bool
-        All data points should be included on the graph
-    plot_average : bool
-        Three month moving average should be included on the graph
+    legend : bool
+        Include legend
 
     Returns
     -------
@@ -122,9 +121,9 @@ def makeAnEgraph(name,
     if name in mergered_trusts.keys():
     
         waiting, mask = proc.combineAnEData(waiting, 
-                                       names, 
-                                       name, 
-                                       mergered_trusts)
+                                        names, 
+                                        name, 
+                                        mergered_trusts)
        
     else:
         waiting = waiting[names == name][0]
@@ -148,16 +147,13 @@ def makeAnEgraph(name,
       
     # If numbers are all very small *and* they are being plotted, then
     # don't include the moving average
-    if max(waiting[mask]) < 10 and plot_points == True:
-        plot_average == False
+    plot_average = True
+    if max(waiting[mask]) < 10:
+        plot_average = False
         
     # Add data points
-    if plot_points == True:
-        ax.plot(dates[mask], 
-                waiting[mask]*norm,
-                'b.', 
-                alpha = 0.2,
-                ms = 10)
+    ax.plot(dates[mask], waiting[mask]*norm,'b.', 
+             alpha = 0.2, ms = 10)
         
     # Add moving average
     #    - Only include label if data points aren't included
@@ -165,20 +161,21 @@ def makeAnEgraph(name,
         ax.plot(proc.movingAverage(dates[mask]), 
                 proc.movingAverage(waiting[mask]*norm), 
                 '-',
-                label="3 month average"*plot_points, 
+                label="3 month average", 
                 lw=2,
                 color = "#e60000")
         
     ax = fix_xticks(ax, dates[mask])
-    ax.legend(prop={"size":14},
-              frameon=False,
-              framealpha = 0, 
-              loc=2)
+    
+    if legend:
+        ax.legend(prop={"size":14},
+                  frameon=False,
+                  framealpha = 0, 
+                  loc=2)
     fig.tight_layout()
     
     return fig
-
-    
+  
 def plotWaitingData(data):
     ''' Plot data NHS England A&E 4 hour waiting data'''
     
@@ -205,16 +202,13 @@ def plotWaitingData(data):
         if check1 and check2 and check3:
             figName = proc.makeFigureName(name, "waiting")
             
-            fig = makeAnEgraph(name, NHSdata, 
-                               plot_points = True,
-                               plot_average = True)
+            fig = makeAnEgraph(name, NHSdata, lengend = True)
               
             fig.savefig("figures/{}".format(figName))
             plt.close(fig)             
            
     print("Done.")
-    
-    
+       
 def plotMergedBedData(newName, NHSdata):
     barColours = ["#004684", "#006BC8", "#39A1FC", "#71BCFE"]
      
@@ -228,11 +222,11 @@ def plotMergedBedData(newName, NHSdata):
     mainMask = mainData != "-"
     if len(mainData[mainMask])>0:
         ax.bar(dates[mainMask], 
-               mainData[mainMask], 
-               lw=3, 
-               width = 0.2, 
-               color = barColours[0], 
-               label = make_label(newName))
+                mainData[mainMask], 
+                lw=3, 
+                width = 0.2, 
+                color = barColours[0], 
+                label = make_label(newName))
         
     # plot old data
     
@@ -258,41 +252,55 @@ def plotMergedBedData(newName, NHSdata):
         len(mergered_trusts[newName])/10)*max(max(oldDataTotal[oldDataMask]), 
                                               max(mainData[mainMask])))
     ax.legend(prop={"size":14},frameon=False, framealpha = 0, loc=2)
+    
+    combined = proc.combineBedData(beds, allNames, newName, mergered_trusts)
+    
+    ax = fix_xticks(ax, dates[combined!="-"])
     fig.tight_layout()
     
     return fig  
 
-def plotBeds(name, dates, beds):
-    figName = proc.makeFigureName(name, "beds")
+def plotBeds(name, NHSdata):
     
-    # rescale large numbers to be in thousands
-    if max(beds) > 1000:
-        rescale = 1/1000
+    if name in mergered_trusts.keys():
+        fig = plotMergedBedData(name, NHSdata)
+    
     else:
-        rescale = 1
+        names, dates, all_beds = NHSdata
         
-    ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
-    
-    fig = plt.figure(figsize=(6,4))
-    if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
-        bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
-         (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
-        bax.set_ylabel(ylabel, labelpad = 50)
-    else:
-        bax = fig.add_subplot(111)
-        bax.set_ylim(0, 1.1*max(beds)*rescale)
-        bax.set_ylabel(ylabel)
-    
-    bax.bar(dates, beds*rescale, width=0.18, color = NHSblue)
-    
-    xup = int(np.ceil(max(dates)))+1
-    xdown = int(np.floor(min(dates)))
-    xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
-    
-    bax.set_xticks(xint)
-    
-    fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
-    plt.close(fig)
+        beds = all_beds[names == name][0]
+        
+        dates = dates[beds != "-"]
+        beds = beds[beds != "-"]
+        # format name to match waiting data
+        names = proc.capitaliseFirst(names)
+        # rescale large numbers to be in thousands
+        if max(beds) > 1000:
+            rescale = 1/1000
+        else:
+            rescale = 1
+            
+        ylabel = "# of Overnight Beds" + "\n(Thousands)"*(rescale==1/1000)
+        
+        fig = plt.figure(figsize=(6,4))
+        if min(beds) > 300 and (max(beds) - min(beds)) < min(beds)/3:
+            bax = brokenaxes(ylims=((0, 0.005*max(beds)*rescale), 
+              (0.95*min(beds)*rescale, 1.02*max(beds)*rescale)), hspace=0.08)
+            bax.set_ylabel(ylabel, labelpad = 50)
+        else:
+            bax = fig.add_subplot(111)
+            bax.set_ylim(0, 1.1*max(beds)*rescale)
+            bax.set_ylabel(ylabel)
+        
+        bax.bar(dates, beds*rescale, width=0.18, color = NHSblue)
+        
+        xup = int(np.ceil(max(dates)))+1
+        xdown = int(np.floor(min(dates)))
+        xint = range(xdown, xup, 2*(xup-xdown > 5) + 1*(xup-xdown <= 5))
+        
+        bax.set_xticks(xint)
+        
+    return fig
 
 def plotBedData(data):
     ''' Plot the number of beds at NHS England Trusts'''
@@ -312,20 +320,20 @@ def plotBedData(data):
     oldTrusts = proc.get_all_dict_values(mergered_trusts)
     for i, name in enumerate(names[:]):
         if type(name) == str and not (name in oldTrusts):
-            figName = proc.makeFigureName(name, "beds")
+            
             mask = (beds[i,:] != '-')     
-            if name in mergered_trusts.keys():
-                #print("Merged!!!!!")
-                fig = plotMergedBedData(name, NHSdata)
-                fig.savefig("figures/{}".format(figName))
-                plt.close()
-            elif sum(mask)>=4:
-                plotBeds(name, dates[mask],  beds[i,:][mask])
+            
+            if name in mergered_trusts.keys() or sum(mask)>=4:
+                
+                figName = proc.makeFigureName(name, "beds")
+                fig = plotBeds(name, NHSdata)
+                fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
+                plt.close()         
 
     #### Plot trust change pie chart #### 
     more, same, fewer = proc.bed_change_per_trust(names,
-                                             beds,
-                                             mergered_trusts)
+                                              beds,
+                                              mergered_trusts)
     
     plt.figure(figsize = (6,4))
     labels = 'Fewer Beds', 'Same*', 'More Beds'
@@ -341,8 +349,180 @@ def plotBedData(data):
     plt.axis('equal')
     plt.tight_layout()
     plt.annotate("* change smaller than 50 beds.", 
-                 (0.2, -1.2), size = 13, color = "gray")
+                  (0.2, -1.2), size = 13, color = "gray")
     plt.savefig("figures/BedsPieChart.svg")      
     plt.close( )      
                 
     print("Done.")
+
+def makeOGtempImgs(name, waiting_data, bed_data, AnEblock, bedblock):
+    '''Makes and saves the temp files for making the OG image for trust
+    'name'.'''
+    def getAnEPart(name, waiting_data):
+        '''
+        Makes and saves the A&E part of the OG image
+        '''
+        fig = makeAnEgraph(name, 
+                            waiting_data, 
+                            legend = False)
+        fig.set_size_inches(6, 4)
+
+        fig.savefig("og_temp_AnE.png", dpi = 100, bbox_inches = 'tight')
+        plt.close(fig)
+        
+    def getBedPart(name, bed_data):
+        '''
+        Makes and saves the bed part of the OG image
+        '''    
+        
+        fig = plotBeds(name, bed_data)
+        fig.set_size_inches(6, 4)
+        fig.savefig("og_temp_bed.png", dpi = 100, bbox_inches = 'tight')
+        plt.close(fig)
+    
+    # Make and save the figures as png files
+    if AnEblock and not bedblock:
+        #print("Only A&E plot")
+        getAnEPart(name, waiting_data)
+    elif bedblock and not AnEblock:
+        #print("Only bed plot")
+        getBedPart(name, bed_data)
+    elif bedblock and AnEblock:
+        #print("Both bed block and A&E plots")
+        getBedPart(name, bed_data)
+        getAnEPart(name, waiting_data)
+    else:
+        raise Exception("Error: neither A&E or bed plot available.")   
+        
+def addBorder(img, border_size = 4):
+    newImg = np.zeros((img.shape[0] + border_size*2,
+                     img.shape[1] + border_size*2,
+                     4))
+    newImg[:,:,3] = 1
+    newImg[border_size:-border_size,border_size:-border_size,:] = img
+    
+    return newImg
+
+def addLogo(fig):
+    ax = fig.axes[0]
+    circle1 = patches.Circle((1020, 500), 80, 
+                            edgecolor = "#003087",
+                            facecolor = "white",
+                            lw = 3)
+
+    ax.add_patch(circle1)
+    ax.annotate("How's My",(952, 494), size = 21, color = "#231f20")
+    ax.annotate("NHS",(968, 540), size = 28, color = NHSblue,
+                style='italic', weight='bold')
+    ax.annotate("?",(1059, 540), size = 28, color = "#231f20")
+    return fig
+
+def deleteTempOGFiles():
+    try:
+        os.remove("og_temp_bed.png")
+    except:
+        pass
+    try:
+        os.remove("og_temp_AnE.png")
+    except:
+        pass
+    return None
+
+def makeOGimage(name, waiting_data, bed_data):
+    
+    matplotlib.rc('font', size=18)
+    ane_names, dates, attendance, waiting = waiting_data
+    bed_names, dates, beds = bed_data
+    bed_names = proc.capitaliseFirst(bed_names)
+    
+    AnEblock, bedblock = whichChunks(name, ane_names, bed_names, 
+                                     waiting, beds)
+    #print(AnEblock, bedblock)
+    if not (AnEblock or bedblock):
+        return None
+    
+    # Make temp files
+    makeOGtempImgs(name, waiting_data, bed_data, AnEblock, bedblock)
+        
+    canvas = np.zeros((630, 1200, 4))
+    
+    # solid pale blue canvas
+    canvas[:,:,1] = 0.4
+    canvas[:,:,2] = 1
+    canvas[:,:,3] = 0.1
+    fig = plt.figure(figsize = (12, 6.3))
+    ax1 = fig.add_axes((0, 0, 1, 1))    
+
+    
+    # Make and save the figures as png files
+    if AnEblock and not bedblock:
+        # Only A&E plot
+        img1 = imread('og_temp_AnE.png')
+        img1 = addBorder(img1)
+        y1 = 170; x1 = 260
+        
+        canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
+        
+        ax1.imshow(canvas)
+        
+        ax1.imshow(img1)
+    elif bedblock and not AnEblock:
+        # Only bed plot       
+        img1 = imread('og_temp_bed.png')
+        img1 = addBorder(img1)
+        
+        y1 = 170; x1 = 260
+        
+        canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
+        
+        ax1.imshow(canvas)
+        
+    elif bedblock and AnEblock:
+        # Both bed block and A&E plots
+        img1 = imread('og_temp_bed.png')
+        
+        img1 = addBorder(img1)
+        
+        # pixels from the top
+        y1 = 190; y2 = 90
+        x1 = 290; x2 = 140
+        
+        canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
+
+        img2 = imread('og_temp_AnE.png')
+        img2 = addBorder(img2)
+        
+        canvas[y2:img2.shape[0]+y2:, x2:img2.shape[1]+x2, :] = img2
+        
+        ax1.imshow(canvas)
+        
+    else:
+        return None 
+       
+    ax1.set_xticks([])
+    ax1.set_yticks([])
+    fig = addLogo(fig)
+    # delete temp files
+    deleteTempOGFiles()
+    return fig
+    
+def makeOGfile():
+    if not os.path.isdir("figures/og"):
+        os.mkdir("figures/og")
+
+def plotOGimages(waiting_file, bed_file):
+    makeOGfile()
+    
+    # Load data
+    waiting_data = np.load(waiting_file, allow_pickle=True)
+    bed_data = np.load(bed_file, allow_pickle=True)
+    
+    bed_names = proc.capitaliseFirst(bed_data[0])
+    allNames = proc.combineNames(waiting_data[0], bed_names)
+    
+    for name in allNames:
+        figName = proc.makeFigureName(name, "og", "png")
+        fig = makeOGimage(name, waiting_data, bed_data)
+        if fig != None:
+            fig.savefig("figures/og/{}".format(figName), bbox_inches = 'tight')
+            plt.close(fig)

@@ -5,6 +5,14 @@ process data
 
 import numpy as np
 
+def combineNames(names1, names2):
+    '''Makes a single list of each name appearing in either list'''
+    namesOut = names1
+    for name in names2:
+        if name not in names1:
+            namesOut = np.append(namesOut, name)
+    return namesOut
+
 def dates2num(dates_in):
     dates_out = []
     for period in dates_in:
@@ -24,9 +32,9 @@ def movingAverage(data, N=3):
             moving_aves.append(moving_ave)
     return moving_aves
 
-def makeFigureName(name, fig_type):
+def makeFigureName(name, fig_type, save_format):
     fig_prefix = '-'.join(name.lower().split(' '))
-    fig = ''.join([fig_prefix, "-", fig_type,".svg"])
+    fig = ''.join([fig_prefix, "-", fig_type,".", save_format])
     fig = fig.replace(',', '') 
     
     return fig   
