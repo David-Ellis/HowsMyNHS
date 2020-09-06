@@ -398,10 +398,9 @@ def whichChunks(name, ane_names, bed_names, all_waiting, all_beds):
 def generate_meta(name, AnEblock, bedblock):
     '''Creates meta HTML for given trust page'''
     
-    meta_desc = "Number of hospital beds" * bedblock \
-        +  " and " * AnEblock * bedblock \
-        + "A&E waiting data" * AnEblock \
-        + " for {}.".format(name)
+    meta_desc = '''Over the last 10 years A&E waiting times have risen and 
+    the number of available overnight beds has fallen. 
+    Find out here out {} is doing.'''.format(name)
         
     meta_keywords = "NHS, " + "A&E waiting data, " * AnEblock \
         + "Number of hospital beds, " * bedblock \
@@ -415,17 +414,29 @@ def generate_meta(name, AnEblock, bedblock):
     
     meta_HTML = '''\t<meta name="description" content="{}" />
     <meta name="keywords" content="{}" />
+    <!--  General META Tags -->
     <meta property="og:title" content="{}" />
     <meta property="og:image" content="{}" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:url" content="{}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:type" content="website" />'''.format(meta_desc,
-                                                            meta_keywords,
-                                                            meta_title,
-                                                            meta_image,
-                                                            meta_url)
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="How's My NHS?">
+    
+    <!--  Twitter META Tags -->
+    <meta name="twitter:title" content="{}">
+    <meta name="twitter:description" content="{}">
+    <meta name="twitter:image" content="{}">
+    <meta name="twitter:card" content="summary_large_image">
+    '''.format(meta_desc,
+    meta_keywords,
+    meta_title,
+    meta_image,
+    meta_url,
+    meta_title,
+    meta_desc,
+    meta_image)
     
     return meta_HTML
 
