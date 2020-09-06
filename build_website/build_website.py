@@ -412,7 +412,9 @@ def generate_meta(name, AnEblock, bedblock):
     meta_HTML = '''\t<meta name="description" content="{}" />
     <meta name="keywords" content="{}" />
     <meta property="og:image" content="{}" />
-    <meta property="og:image:type" content="image/png" />'''.format(meta_desc,
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />'''.format(meta_desc,
                                                             meta_keywords,
                                                             meta_image)
     
