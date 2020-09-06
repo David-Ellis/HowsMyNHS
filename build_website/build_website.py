@@ -409,14 +409,23 @@ def generate_meta(name, AnEblock, bedblock):
 
     meta_image = "https://howsmynhs.co.uk/figures/og/" + pd.makeFigureName(name, "og", "png")
     
+    meta_title = name + " [Official Data]"
+    
+    meta_url = "https://howsmynhs.co.uk/" + makeURL(name)
+    
     meta_HTML = '''\t<meta name="description" content="{}" />
     <meta name="keywords" content="{}" />
+    <meta property="og:title" content="{}" />
     <meta property="og:image" content="{}" />
     <meta property="og:image:type" content="image/png" />
+    <meta property="og:url" content="{}" />
     <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />'''.format(meta_desc,
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />'''.format(meta_desc,
                                                             meta_keywords,
-                                                            meta_image)
+                                                            meta_title,
+                                                            meta_image,
+                                                            meta_url)
     
     return meta_HTML
 
