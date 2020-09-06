@@ -407,7 +407,7 @@ def generate_meta(name, AnEblock, bedblock):
         + "Number of hospital beds, " * bedblock \
         + name
 
-    meta_image = "figures/og/" + pd.makeFigureName(name, "og", "png")
+    meta_image = "../figures/og/" + pd.makeFigureName(name, "og", "png")
     
     meta_HTML = '''\t<meta name="description" content="{}">
     <meta name="keywords" content="{}">
