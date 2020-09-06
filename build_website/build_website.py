@@ -131,7 +131,7 @@ def make_AnE_waiting_block(data, name):
         
     if i == 0:
         # Get figure path
-        figName = pd.makeFigureName(name, "waiting")
+        figName = pd.makeFigureName(name, "waiting", "svg")
         path = "../figures/{}".format(figName)
 
         
@@ -153,7 +153,7 @@ def make_AnE_waiting_block(data, name):
         
     elif sum(attendanceData != '-')>=10:
         # Get figure path
-        figName = pd.makeFigureName(name, "waiting")
+        figName = pd.makeFigureName(name, "waiting", "svg")
         path = "../figures/{}".format(figName)
         
         imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path,
@@ -266,7 +266,7 @@ def make_bed_block(beds_data, name):
     
     i = np.where(names == name)[0]
     
-    figName = pd.makeFigureName(name, "beds")
+    figName = pd.makeFigureName(name, "beds", "svg")
     path = "../figures/{}".format(figName)
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
                     "Number of available overnight beds for {}.".format(name))
@@ -407,7 +407,7 @@ def generate_meta(name, AnEblock, bedblock):
         + "Number of hospital beds, " * bedblock \
         + name
 
-    meta_image = "logo.png"
+    meta_image = "figures/og/" + pd.makeFigureName(name, "og", "png")
     
     meta_HTML = '''\t<meta name="description" content="{}">
     <meta name="keywords" content="{}">

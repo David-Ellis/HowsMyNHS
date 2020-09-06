@@ -200,7 +200,7 @@ def plotWaitingData(data):
         check3 = sum(mask)>=10 or name in mergered_trusts.keys()
         
         if check1 and check2 and check3:
-            figName = proc.makeFigureName(name, "waiting")
+            figName = proc.makeFigureName(name, "waiting", "svg")
             
             fig = makeAnEgraph(name, NHSdata, lengend = True)
               
@@ -325,7 +325,7 @@ def plotBedData(data):
             
             if name in mergered_trusts.keys() or sum(mask)>=4:
                 
-                figName = proc.makeFigureName(name, "beds")
+                figName = proc.makeFigureName(name, "beds", "svg")
                 fig = plotBeds(name, NHSdata)
                 fig.savefig("figures/{}".format(figName), bbox_inches = 'tight')
                 plt.close()         
@@ -459,19 +459,18 @@ def makeOGimage(name, waiting_data, bed_data):
         # Only A&E plot
         img1 = imread('og_temp_AnE.png')
         img1 = addBorder(img1)
-        y1 = 170; x1 = 260
+        y1 = 140; x1 = 260
         
         canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
         
         ax1.imshow(canvas)
         
-        ax1.imshow(img1)
     elif bedblock and not AnEblock:
         # Only bed plot       
         img1 = imread('og_temp_bed.png')
         img1 = addBorder(img1)
         
-        y1 = 170; x1 = 260
+        y1 = 140; x1 = 260
         
         canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
         
@@ -501,6 +500,7 @@ def makeOGimage(name, waiting_data, bed_data):
        
     ax1.set_xticks([])
     ax1.set_yticks([])
+    ax1.set_axis_off()
     fig = addLogo(fig)
     # delete temp files
     deleteTempOGFiles()
@@ -524,5 +524,6 @@ def plotOGimages(waiting_file, bed_file):
         figName = proc.makeFigureName(name, "og", "png")
         fig = makeOGimage(name, waiting_data, bed_data)
         if fig != None:
-            fig.savefig("figures/og/{}".format(figName), bbox_inches = 'tight')
+            fig.savefig("figures/og/{}".format(figName), 
+                        bbox_inches = 'tight', pad_inches=0)
             plt.close(fig)
