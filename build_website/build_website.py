@@ -199,7 +199,7 @@ def make_AnE_waiting_block(data, name):
         elif avAtt>2000 and diff > 100:
             diff = smoothWait[0]-smoothWait[-1]
             chunk = '''
-            <p>After nearly a decade of Conservative rule, on average, <b>{}</b> more people are being left to wait over 
+            <p>After nearly a decade of Conservative rule, on average, <b>{}</b> more people each month are being left to wait over 
             four hours at A&E at <b>your</b> hospital than back in {}.</p>
 
             {}
@@ -686,7 +686,7 @@ beds_worse = u'''
 
             {}
             
-            <p>Unfortunatly, similar things are being seen accross the country. 
+            <p>Unfortunately, similar things are being seen accross the country. 
             Overall, there are {} fewer NHS beds in England than in 2010. 
             That's a decrease of {}%.</p>
             
@@ -701,7 +701,7 @@ beds_all_gone = u'''
 
             {}
             
-            <p>Unfortunatly, similar things are being seen accross the country. 
+            <p>Unfortunately, similar things are being seen accross the country. 
             Overall, there are {} fewer NHS beds in England than in 2010. 
             That's a decrease of {}%.</p>
             
@@ -717,7 +717,7 @@ beds_better = u'''
 
             {}
             
-            <p>Unfortunatly, similar things are being seen accross the country. 
+            <p>Unfortunately, similar things are being seen accross the country. 
             Overall, there are {} fewer NHS beds in England than in 2010. 
             That's a decrease of {}%.</p>
             
@@ -732,7 +732,7 @@ beds_little_change = u'''
 
             {}
             
-            <p>Unfortunatly, this isn't the case for many NHS trusts accross the country.
+            <p>Unfortunately, this isn't the case for many NHS trusts accross the country.
             Overall, there are {} fewer NHS beds in England than in 2010. 
             That's a decrease of over {}%.</p>
             
