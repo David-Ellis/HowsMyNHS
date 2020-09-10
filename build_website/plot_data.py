@@ -167,7 +167,7 @@ def makeAnEgraph(name,
         
     ax = fix_xticks(ax, dates[mask])
     
-    if legend:
+    if legend and plot_average:
         ax.legend(prop={"size":14},
                   frameon=False,
                   framealpha = 0, 
@@ -202,7 +202,7 @@ def plotWaitingData(data):
         if check1 and check2 and check3:
             figName = proc.makeFigureName(name, "waiting", "svg")
             
-            fig = makeAnEgraph(name, NHSdata, lengend = True)
+            fig = makeAnEgraph(name, NHSdata, legend = True)
               
             fig.savefig("figures/{}".format(figName))
             plt.close(fig)             

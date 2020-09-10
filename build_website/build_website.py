@@ -403,7 +403,12 @@ def generate_meta(name, AnEblock, bedblock):
 
     meta_image = "https://howsmynhs.co.uk/figures/og/" + pd.makeFigureName(name, "og", "png")
     
-    meta_title = "How's my NHS? - " + name + " [Official Data]"
+    if name == "England":
+        subTitle = "NHS England Overview"
+    else:
+        subTitle = name
+    
+    meta_title = "How's my NHS? - " + subTitle + " [Official Data]"
     
     meta_url = "https://howsmynhs.co.uk/" + makeURL(name)
     
@@ -457,11 +462,16 @@ def build_trust_pages(waiting_data, beds_data, news_file):
             url = makeURL(name)
             file = open(url, "w")
             
+            if name == "England":
+                subTitle = "NHS England Overview"
+            else:
+                subTitle = name
+            
             meta_HTML = generate_meta(name, AnEblock, bedblock)
                         
             subTitleHTML = '''
             <div class = \"box\">
-            \n<h2 class = \"subtitle\">{}</h2>\n'''.format(name)
+            \n<h2 class = \"subtitle\">{}</h2>\n'''.format(subTitle)
             
             
             tab_HTML = '<div class="tab">' + \
