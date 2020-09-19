@@ -1,0 +1,28 @@
+@media screen and (max-width: 800px) {
+    #coming-soon {
+        max-width: 80%;
+    }
+
+    .maintitle {
+        max-width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .maintitle2 {
+        display: None;
+    }
+    
+    .subtitle{
+        padding-top: 20px;
+    }
+    
+    .maintitle2 {
+        display: None;
+    }
+    
+    .searchbox {
+        max-width:80%;
+    }
+    
+}

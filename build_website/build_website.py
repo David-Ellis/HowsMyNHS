@@ -568,7 +568,7 @@ homeHTML1 = '''
     <meta name="twitter:card" content="summary_large_image">
     
     <link rel="stylesheet" type="text/css" href="style.css">
-    
+    <link rel="stylesheet" type="text/css" href="narrow.css">
 </head>
 <body>
 
@@ -656,7 +656,7 @@ headHTML1 = '''
 
 headHTML2 ='''<title>How's my NHS? - {} [Official Data]</title>
 <link rel="stylesheet" type="text/css" href="../style.css">
-
+<link rel="stylesheet" type="text/css" href="../narrow.css">
 <!-- meta data-->
 {}
 

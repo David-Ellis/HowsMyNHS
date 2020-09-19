@@ -42,7 +42,7 @@ body {
 
 /*****************************/
 
-/*  Coming soon  */
+/*      Coming soon      */
 #coming-soon {
     background-color: #e6e6ff;
     max-width: 800px;
@@ -59,9 +59,32 @@ body {
     font-size:30px; 
 }
 
+
+
 #coming-soon p {
     text-align:center; 
     font-size:25px; 
+}
+
+/**-------------------------**/
+
+@media screen and (max-width: 800px) {
+  #coming-soon {
+    max-width: 80%;
+  }
+    
+  .maintitle {
+    max-width: 80%;
+  }
+   
+  .maintitle2 {
+    display:None;
+    }
+    
+   .searchbox{
+       max-width:80%;
+    }
+    
 }
 
 a:link {
