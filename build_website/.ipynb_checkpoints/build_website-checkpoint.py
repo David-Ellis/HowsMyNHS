@@ -567,6 +567,7 @@ homeHTML1 = '''
     <meta name="twitter:image" content="https://howsmynhs.co.uk/figures/og/england-og.png">
     <meta name="twitter:card" content="summary_large_image">
     
+    <link href="favicon.png" rel="icon" type="image/x-icon" />
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="narrow.css">
 </head>
@@ -655,6 +656,7 @@ headHTML1 = '''
 
 
 headHTML2 ='''<title>How's my NHS? - {} [Official Data]</title>
+<link href="../favicon.png" rel="icon" type="image/x-icon" />
 <link rel="stylesheet" type="text/css" href="../style.css">
 <link rel="stylesheet" type="text/css" href="../narrow.css">
 <!-- meta data-->
