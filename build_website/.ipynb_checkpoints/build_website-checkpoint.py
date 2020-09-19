@@ -586,7 +586,7 @@ homeHTML1 = '''
 <div class="searchbox">
 <div class="description">
 <p style="padding: 0px; margin: 0px; padding-bottom: 10px;">
-A&E waiting times are soring and there are fewer and fewer beds for those that need them.
+A&E waiting times are soaring and there are fewer and fewer beds for those that need them.
 The NHS is in crisis.</p>
 
 <pstyle="padding: 0px; margin: 0px;">

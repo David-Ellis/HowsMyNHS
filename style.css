@@ -60,7 +60,6 @@ body {
 }
 
 
-
 #coming-soon p {
     text-align:center; 
     font-size:25px; 
@@ -98,6 +97,7 @@ a:link {
 
 .searchbox{
  margin: auto;
+ font-size:22px;
  width: 100%;
  max-width:700px;
  padding:0px;
@@ -106,13 +106,12 @@ a:link {
 
 .description{
  border-radius: 30px 30px 0px 0px;
- font-size:22px;
  text-align: left;
  padding: 20px;
  padding-bottom: 2px;
  margin: 0; 
  background-color: #0072CE; /* background color */
- color:white; /* text color */
+ color: white; /* text color */
  text-shadow: 1px 1px black;
  /*box-shadow: 10px 10px 20px lightgrey;*/
 }
@@ -134,7 +133,7 @@ a {
   margin: 0px;
   margin-top: -2px;
   background-position: 10px 15px; /* Position the search icon */
-  background-size: 30px;
+  background-size: 25px;
   background-repeat: no-repeat; /* Do not repeat the icon image */
   font-size: 25px; /* Increase font-size */
   padding: 12px 20px 12px 50px; /* Add some padding */
