@@ -450,7 +450,7 @@ def makeOGimage(name, waiting_data, bed_data):
     canvas[:,:,1] = 0.4
     canvas[:,:,2] = 1
     canvas[:,:,3] = 0.1
-    fig = plt.figure(figsize = (12, 6.3))
+    fig = plt.figure(figsize = (12, 6.3), dpi=100)
     ax1 = fig.add_axes((0, 0, 1, 1))    
 
     
