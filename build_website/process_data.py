@@ -71,7 +71,7 @@ def capitaliseFirst(string_list):
 except NHS which should be in all-caps'''
     
     for i, string in enumerate(string_list):
-        words = string.split(" ")
+        words = string.lower().split(" ")
         words = [word[0].upper() + word[1:] for word in words]
         string_list[i] = " ".join(words).replace("Nhs", "NHS")
         

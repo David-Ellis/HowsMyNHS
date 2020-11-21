@@ -32,12 +32,6 @@ def movingAverage(data, N=3):
             moving_aves.append(moving_ave)
     return moving_aves
 
-def movingDatetimeAverage(data, N=3):
-    moving_aves = []
-    for i in range(N, len(data)-3):
-        moving_aves.append(data[i])
-    return moving_aves
-
 def makeFigureName(name, fig_type, save_format):
     fig_prefix = '-'.join(name.lower().split(' '))
     fig = ''.join([fig_prefix, "-", fig_type,".", save_format])
@@ -77,7 +71,7 @@ def capitaliseFirst(string_list):
 except NHS which should be in all-caps'''
     
     for i, string in enumerate(string_list):
-        words = string.split(" ")
+        words = string.lower().split(" ")
         words = [word[0].upper() + word[1:] for word in words]
         string_list[i] = " ".join(words).replace("Nhs", "NHS")
         

@@ -107,8 +107,6 @@ def MakeHomepage(waiting_data, bed_data):
     
 def make_AnE_waiting_block(data, name):
     ''' Generates the chunk of HTML relating to the A&E waiting time data for NHS trust <name>.
-    
-    TODO: Turn big chunks of text into global variables defined below with the other text.
     '''
     names, dates, attendance, waiting = np.load(data, allow_pickle=True)
     dates = pd.dates2num(dates)
@@ -257,8 +255,7 @@ def make_AnE_waiting_block(data, name):
 
 def make_bed_block(beds_data, name):
     ''' Generates the chunk of HTML relating to the A&E waiting time data for NHS trust <name>.
-    
-    TODO: Turn big chunks of text into global variables defined below with the other text.
+
     '''
     names, dates, beds = np.load(beds_data, allow_pickle=True)
     
@@ -348,14 +345,44 @@ def make_bed_block(beds_data, name):
         
     return chunk   
 
-def whichChunks(name, ane_names, bed_names, all_waiting, all_beds):
+def makeCovidBlock(covid_data, name):
+    names, dates, covid_deaths = np.load(covid_data, allow_pickle=True)
+    names = pd.capitaliseFirst(names)
+    #print(name, covid_deaths[names == name].shape)
+    trust_deaths = covid_deaths[names == name][0]
+    
+    total_deaths = sum(trust_deaths)
+    weeks_deaths = sum(trust_deaths[-7::])
+    
+    # image html
+    figName = pd.makeFigureName(name, "covid", "svg")
+    path = "../figures/{}".format(figName)
+    imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
+                    "Number of Covid-19 related deaths for {}.".format(name))
+
+    if name == "England":
+        first_para = '''<p>
+        So far, for yesterday, there have been {} reported deaths related to Covid-19 in English hospitals.
+        This gives a total of {} deaths over the past week and {} since the outbreak of the pandemic.
+        </p>'''.format(int(trust_deaths[-1]), int(weeks_deaths), int(total_deaths))
+    elif total_deaths == 0:
+        first_para = "<p>No deaths.</p>"
+    elif total_deaths == 1:
+        first_para = "<p>Total equal to one.</p>"
+    elif total_deaths > 1:
+        first_para = "<p>Total greater than one.</p>"
+    chunk = first_para + imgHTML
+    
+    return chunk
+
+def whichChunks(name, ane_names, bed_names, covid_names, all_waiting, all_beds, all_covid):
     '''Determins which HTML chunks are needed 
     
     Returns: Boolian array
         - A&E Needed
         - Beds Needed
     '''
-    ane_block, bed_block = False, False
+    ane_block, bed_block, covid_block = False, False, False
     
     # Check if A&E block is needed
     if name in ane_names:
@@ -382,7 +409,7 @@ def whichChunks(name, ane_names, bed_names, all_waiting, all_beds):
         if bed_points >= 4:
             bed_block = True
             
-        # if trust is made from merger, check the old trusts
+    # if trust is made from merger, check the old trusts
     if name in mergered_trusts.keys():
         for oldTrust in mergered_trusts[name]:
             if oldTrust in bed_names:
@@ -392,8 +419,11 @@ def whichChunks(name, ane_names, bed_names, all_waiting, all_beds):
                 if bed_points >= 4:
                     bed_block = True
                     #print("merged bed block added: {}".format(name))
+                    
+    if name in covid_names:
+        covid_block = True
             
-    return ane_block, bed_block
+    return ane_block, bed_block, covid_block
     
 def generate_meta(name, AnEblock, bedblock):
     '''Creates meta HTML for given trust page'''
@@ -438,16 +468,20 @@ def generate_meta(name, AnEblock, bedblock):
     
     return meta_HTML
 
-def build_trust_pages(waiting_data, beds_data, news_file):
+def build_trust_pages(waiting_data, beds_data, covid_data, news_file):
     print("Building trust pages...", end = " ")
     
     # Load data
     names1, dates, attendance, waiting = np.load(waiting_data, allow_pickle=True)
     names2, dates, beds = np.load(beds_data, allow_pickle=True)
+    names3, dates, covid_deaths = np.load(covid_data, allow_pickle=True)
     
+    # Format and combine all names
     names2 = pd.capitaliseFirst(names2)
+    names3 = pd.capitaliseFirst(names3)
     allNames = pd.combineNames(names1, names2)
-   
+    allNames = pd.combineNames(allNames, names3)
+    
     # Load news
     newsDict = news.makeNewsDictionary(allNames,news_file)
     
@@ -455,9 +489,10 @@ def build_trust_pages(waiting_data, beds_data, news_file):
     oldTrusts = pd.get_all_dict_values(mergered_trusts)
     for i, name in enumerate(allNames):
         #print(name)
-        AnEblock, bedblock = whichChunks(name, names1, names2, attendance, beds)
+        AnEblock, bedblock, covidblock = whichChunks(name, names1, names2, 
+                                                     names3, attendance, beds, covid_deaths)
         
-        if (AnEblock or bedblock) and (name not in oldTrusts):
+        if (AnEblock or bedblock or covidblock) and (name not in oldTrusts):
             
             url = makeURL(name)
             file = open(url, "w")
@@ -477,6 +512,7 @@ def build_trust_pages(waiting_data, beds_data, news_file):
             tab_HTML = '<div class="tab">' + \
             "<button class=\"tablinks\" onclick=\"openCity(event, 'AnE')\" id=\"defaultOpen\">A&E Waiting Times</button>"*AnEblock + \
             "<button class=\"tablinks\" onclick=\"openCity(event, 'beds')\" id=\"defaultOpen\">Number of Beds</button>"*bedblock + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'covid')\" id=\"defaultOpen\">Covid-19 Deaths</button>"*covidblock + \
             "<button class=\"tablinks\" onclick=\"openCity(event, 'news')\" id=\"defaultOpen\">News</button></div>" 
             
             
@@ -487,6 +523,8 @@ def build_trust_pages(waiting_data, beds_data, news_file):
             
             if bedblock:
                 supTextHTML += "<div id=\"beds\" class=\"tabcontent\">" + make_bed_block(beds_data, name) + "</div>\n"
+            if covidblock:
+                supTextHTML += "<div id=\"covid\" class=\"tabcontent\">" + makeCovidBlock(covid_data, name) + "</div>\n"
                 
             supTextHTML += news.makeNewsBlock(name, newsDict)
             
