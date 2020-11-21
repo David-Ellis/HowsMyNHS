@@ -67,6 +67,38 @@ body {
 
 /**-------------------------**/
 
+
+/*****************************/
+
+/*      About us      */
+#about-us {
+    background-color: #e6e6ff;
+    max-width: 800px;
+    margin: 0 auto;
+    margin-top: 30px;
+    margin-bottom:50px;
+    padding: 20px;
+    padding-top: 10px;
+    border: 2px solid lightgray;
+    border-radius: 30px;
+    text-align:left; 
+    font-size:20px; 
+    color: black;
+}
+
+#about-us a {
+    color: #000099;
+    font-style: italic;
+}
+
+#about-us li {
+    margin-top: 10px;
+    margin-left: 30px;
+
+}
+
+/**-------------------------**/
+
 a:link {
   text-decoration: none ;
 }
@@ -186,26 +218,6 @@ a {
   width: 100%;
   max-width: 600px;
   margin; auto;
-}
-
-.column1 {
-  float: left;
-  text-align: right;
-  width: 29.5%;
-  padding:1px;
-  min-width:504px;
- * /*border-style: dashed;*/
-}
-
-.column2 {
-  float: left;
-  text-align: left;
-  padding: 20px;
-  max-width: 504px;*/
-  min-width:300px;
-  overflow: auto;
-  /*border-style: solid;*/
-
 }
 
 #share-buttons img {
