@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib
 from matplotlib.image import imread
 from matplotlib import patches
+import matplotlib.dates as mdates
 import os
 
 # third party packages
@@ -527,3 +528,56 @@ def plotOGimages(waiting_file, bed_file):
             fig.savefig("figures/og/{}".format(figName), 
                         bbox_inches = 'tight', pad_inches=0)
             plt.close(fig)
+
+            
+def makeCovidGraph(name, data, legend = True):
+    fig  = plt.figure(figsize=(6,4))
+    ax = fig.add_subplot(111)
+      
+    names, dates, deaths = data
+    trustDeaths = deaths[names == name].T
+    
+    # Add data points
+    ax.plot_date(dates, trustDeaths,'b.', alpha = 0.2, ms = 10)
+    
+    # moving average
+    ax.plot_date(dates[3:-3],
+                proc.movingAverage(trustDeaths, N=7),
+                 '-', label="Weekly Average", lw=2,
+                 color = "#e60000")
+    
+#     ax.plot(proc.movingAverage(dateInYears, N=3),
+#         proc.movingAverage(trustDeaths, N=3),
+#         '--', label="3 Day Average", lw=2,
+#         color = "tab:green")
+    ax.xaxis.set_tick_params(rotation=35)
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%b'))
+    ax.set_ylabel("Daily Covid-19 Deaths")
+    if legend == True:
+        ax.legend(prop={"size":14}, frameon=False, 
+                  framealpha = 0)
+    fig.tight_layout()
+    
+    return fig
+            
+def plotCovidData(datafile):
+    ''' Plot daily covid deaths'''
+    
+    print("Generating Covid-19 graphs...", end = " ")
+    
+    # Load data
+    
+    data = np.load(datafile, allow_pickle=True)
+    names = data[0] 
+    names = proc.capitaliseFirst(names)
+    
+    ### Plot and save the data ###
+    for i, name in enumerate(names[:]):
+        figName = proc.makeFigureName(name, "covid", "svg")
+
+        fig = makeCovidGraph(name, data)
+
+        fig.savefig("figures/{}".format(figName))
+        plt.close(fig)             
+           
+    print("Done.")
