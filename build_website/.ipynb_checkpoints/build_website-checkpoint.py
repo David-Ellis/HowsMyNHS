@@ -349,29 +349,74 @@ def makeCovidBlock(covid_data, name):
     names, dates, covid_deaths = np.load(covid_data, allow_pickle=True)
     names = pd.capitaliseFirst(names)
     #print(name, covid_deaths[names == name].shape)
-    trust_deaths = covid_deaths[names == name][0]
     
-    total_deaths = sum(trust_deaths)
-    weeks_deaths = sum(trust_deaths[-7::])
+    englandDeaths = covid_deaths[names == "England"][0]
+    totalEnglandDeaths = sum(englandDeaths)
+    weeksEnglandDeaths = sum(englandDeaths[-7::])
+                           
+    trustDeaths = covid_deaths[names == name][0]
+    totalTrustDeaths = sum(trustDeaths)
+    weeksTrustDeaths = sum(trustDeaths[-7::])
+    
+    # were/was and death/deaths
+    were_was = "were"*(trustDeaths[-1] != 1) + "was"*(trustDeaths[-1] == 1)
+    death_deaths = "death" + "s"*(trustDeaths[-1] != 1)
     
     # image html
     figName = pd.makeFigureName(name, "covid", "svg")
     path = "../figures/{}".format(figName)
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
                     "Number of Covid-19 related deaths for {}.".format(name))
-
+    
+    compare_to_total = '''
+    <p>
+    So far, there have been a total of {} Covid-19 related deaths in English hospitals. 
+    {} of these {} recorded yesterday and {} over the last seven days.
+    '''.format(format_number(int(totalEnglandDeaths)), 
+                format_number(int(englandDeaths[-1])), 
+                were_was,
+                format_number(int(weeksEnglandDeaths)))
+    
     if name == "England":
         first_para = '''<p>
-        So far, for yesterday, there have been {} reported deaths related to Covid-19 in English hospitals.
-        This gives a total of {} deaths over the past week and {} since the outbreak of the pandemic.
-        </p>'''.format(int(trust_deaths[-1]), int(weeks_deaths), int(total_deaths))
-    elif total_deaths == 0:
-        first_para = "<p>No deaths.</p>"
-    elif total_deaths == 1:
-        first_para = "<p>Total equal to one.</p>"
-    elif total_deaths > 1:
-        first_para = "<p>Total greater than one.</p>"
-    chunk = first_para + imgHTML
+        Since the start of the pandemic, there have been {} reported deaths related to Covid-19 in English hospitals.
+        There {} {} recorded yesterday and {} over the last seven days.
+        </p>'''.format(format_number(int(totalEnglandDeaths)), 
+                       were_was,
+                       death_deaths,
+                format_number(int(englandDeaths[-1])), 
+                format_number(int(weeksEnglandDeaths)))
+        
+    elif totalTrustDeaths == 0:
+        first_para = '''
+        <p>
+        Fortunatlely, there have not yet been any reported deaths in hospital related to Covid-19 at this Trust.
+        </p>'''
+    elif totalTrustDeaths == 1:
+        first_para = '''
+        <p>
+        There has been one death related to Covid-19 reported at a hospital under this Trust.
+        </p>'''
+    elif totalTrustDeaths > 1:
+
+        first_para = '''
+        <p>
+        Unfortunately, since the start of the pandemic in March, there have been {} reported deaths related to Covid-19 at in hospitals under this Trust. There {} {} {} recorded yesterday and a total of {} over the last seven days.
+        </p>'''.format(format_number(int(totalTrustDeaths)), 
+                       were_was,
+                       format_number(int(trustDeaths[-1])), 
+                       death_deaths,
+                       format_number(int(weeksTrustDeaths)))
+        
+    please_note = '''
+    <p>Please note that these figures, particularly the most recent ones, are subject to change as new reports are made. Additionally, these figures do not include deaths outside hospital, such as those in care homes. For additional information, please see the <a href="https://www.england.nhs.uk/statistics/statistical-work-areas/covid-19-daily-deaths/">official NHS page</a> for Covid-19 death statistics.
+    </p>
+    '''
+    call_to_action = '''
+    <a href="..\whatnext.html" style = "text-decoration: none;"><div class="action">Call to Action</div></a>
+    '''
+        
+    chunk = first_para + compare_to_total*(name!="England") + imgHTML + please_note + call_to_action
     
     return chunk
 

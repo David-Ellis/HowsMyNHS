@@ -94,7 +94,6 @@ body {
 #about-us li {
     margin-top: 10px;
     margin-left: 30px;
-
 }
 
 /**-------------------------**/
@@ -282,6 +281,11 @@ a img {
   margin-bottom: 50px;
 }
 
+.tabcontent a {
+  color: #000099;
+  font-style: italic;  
+}
+
 .action{
     margin: auto;
     text-align: center;
@@ -313,7 +317,6 @@ a img {
 .actioncontent {
   padding: 6px 12px;
   border: 1px solid #ccc;
-  
 }
 
 /* ######################################## */
@@ -335,6 +338,10 @@ a img {
 	font-size: 16px;
 	padding: 10px;
 	padding-bottom: 0px;
+}
+
+#news a {
+    font-style: normal;
 }
 
 #news-text {
@@ -360,6 +367,7 @@ a img {
 #news h3 {
 	/*overflow:hidden;*/
 	/*white-space: nowrap;*/
+    font-style: normal;
 	color: #003087; /* NHS Blue */
 	font-size: 16px;
 	padding-top: 0px;
