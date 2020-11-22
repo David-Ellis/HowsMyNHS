@@ -416,7 +416,7 @@ def makeCovidBlock(covid_data, name):
     <a href="..\whatnext.html" style = "text-decoration: none;"><div class="action">Call to Action</div></a>
     '''
         
-    chunk = first_para + compare_to_total*(name!="England") + imgHTML + please_note + call_to_action
+    chunk = first_para + compare_to_total*(name!="England") + imgHTML + please_note + covid_failures + call_to_action
     
     return chunk
 
@@ -853,4 +853,13 @@ beds_little_change = u'''
             {}
            '''
 
+covid_failures = '''
+<p>
+Undoubtedly, Government failures have meant that more people have died from Covid-19 than they otherwise would have. From toying with the idea of 'herd immunity' instead of initiating an early lockdown to the failure to provide adequate PPE to frontline staff and an ineffective privately run track-and-trace system, the Governments response to the pandemic has been sadly inadequate.
+</p>
 
+<p>Additionally, after a decade of underfunding and neglect, the NHS was ill-prepared for a pandemic of this scale. With A&E waiting times at an all-time high, and the number of overnight beds at an all-time low. </p>
+
+<p>The NHS deserves better, we deserve better and we must unite in demanding better.</p>
+
+'''
