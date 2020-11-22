@@ -356,7 +356,8 @@ def plotBedData(data):
                 
     print("Done.")
 
-def makeOGtempImgs(name, waiting_data, bed_data, AnEblock, bedblock):
+def makeOGtempImgs(name, waiting_data, bed_data, covid_data,
+                   AnEblock, bedblock, covidblock):
     '''Makes and saves the temp files for making the OG image for trust
     'name'.'''
     def getAnEPart(name, waiting_data):
@@ -380,20 +381,22 @@ def makeOGtempImgs(name, waiting_data, bed_data, AnEblock, bedblock):
         fig.set_size_inches(6, 4)
         fig.savefig("og_temp_bed.png", dpi = 100, bbox_inches = 'tight')
         plt.close(fig)
-    
+        
+    def getCovidPart(name, covid_data):
+        fig = makeCovidGraph(name, covid_data, legend = False)
+        fig.set_size_inches(6, 4)
+        fig.savefig("og_temp_covid.png", dpi = 100, bbox_inches = 'tight')
+        plt.close(fig)
+        
+    assert AnEblock or bedblock or covidblock, "Error: No plots available"
+
     # Make and save the figures as png files
-    if AnEblock and not bedblock:
-        #print("Only A&E plot")
+    if AnEblock:
         getAnEPart(name, waiting_data)
-    elif bedblock and not AnEblock:
-        #print("Only bed plot")
+    if bedblock:
         getBedPart(name, bed_data)
-    elif bedblock and AnEblock:
-        #print("Both bed block and A&E plots")
-        getBedPart(name, bed_data)
-        getAnEPart(name, waiting_data)
-    else:
-        raise Exception("Error: neither A&E or bed plot available.")   
+    if covidblock:
+        getCovidPart(name, covid_data)
         
 def addBorder(img, border_size = 4):
     newImg = np.zeros((img.shape[0] + border_size*2,
@@ -427,23 +430,30 @@ def deleteTempOGFiles():
         os.remove("og_temp_AnE.png")
     except:
         pass
+    try:
+        os.remove("og_temp_covid.png")
+    except:
+        pass
     return None
 
-def makeOGimage(name, waiting_data, bed_data):
+def makeOGimage(name, waiting_data, bed_data, covid_data):
     
     matplotlib.rc('font', size=18)
+    # load data
     ane_names, dates, attendance, waiting = waiting_data
     bed_names, dates, beds = bed_data
     bed_names = proc.capitaliseFirst(bed_names)
+    covid_names, dates, deaths = covid_data
+    covid_names = proc.capitaliseFirst(covid_names)
     
-    AnEblock, bedblock = whichChunks(name, ane_names, bed_names, 
-                                     waiting, beds)
+    AnEblock, bedblock, covidblock = whichChunks(name, ane_names, bed_names, 
+                                    covid_names, waiting, beds, covid_data)
     #print(AnEblock, bedblock)
     if not (AnEblock or bedblock):
         return None
     
     # Make temp files
-    makeOGtempImgs(name, waiting_data, bed_data, AnEblock, bedblock)
+    makeOGtempImgs(name, waiting_data, bed_data, covid_data, AnEblock, bedblock, covidblock)
         
     canvas = np.zeros((630, 1200, 4))
     
@@ -454,47 +464,49 @@ def makeOGimage(name, waiting_data, bed_data):
     fig = plt.figure(figsize = (12, 6.3), dpi=100)
     ax1 = fig.add_axes((0, 0, 1, 1))    
 
-    
+    images = []
     # Make and save the figures as png files
-    if AnEblock and not bedblock:
-        # Only A&E plot
-        img1 = imread('og_temp_AnE.png')
-        img1 = addBorder(img1)
+    if AnEblock:
+        img = imread('og_temp_AnE.png')
+        img = addBorder(img)
+        images.append(img)
+        
+    if bedblock:
+        img = imread('og_temp_bed.png')
+        img = addBorder(img)
+        images.append(img)
+        
+    if covidblock:
+        img = imread('og_temp_covid.png')
+        img = addBorder(img)
+        images.append(img)
+        
+    if len(images) == 1:
+        # Only one plot
+        img1 = images[0]
+        
         y1 = 140; x1 = 260
         
         canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
         
         ax1.imshow(canvas)
         
-    elif bedblock and not AnEblock:
-        # Only bed plot       
-        img1 = imread('og_temp_bed.png')
-        img1 = addBorder(img1)
+    elif len(images) > 1:
+        # Two plots
         
-        y1 = 140; x1 = 260
-        
-        canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
-        
-        ax1.imshow(canvas)
-        
-    elif bedblock and AnEblock:
-        # Both bed block and A&E plots
-        img1 = imread('og_temp_bed.png')
-        
-        img1 = addBorder(img1)
+        num_images = len(images)
         
         # pixels from the top
-        y1 = 190; y2 = 90
-        x1 = 290; x2 = 140
-        
-        canvas[y1:img1.shape[0]+y1, x1:img1.shape[1]+x1, :] = img1
-
-        img2 = imread('og_temp_AnE.png')
-        img2 = addBorder(img2)
-        
-        canvas[y2:img2.shape[0]+y2:, x2:img2.shape[1]+x2, :] = img2
+        yup = 210; ydown = 50
+        ys = np.linspace(yup, ydown,num_images,dtype='int')
+        xup = 310; xdown = 70
+        xs = np.linspace(xup, xdown,num_images,dtype='int')
+        #print(xs)
+        for i in range(num_images):
+            canvas[ys[i]:images[i].shape[0] +ys[i], xs[i]:images[i].shape[1] + xs[i],:] = images[i]
         
         ax1.imshow(canvas)
+        
         
     else:
         return None 
@@ -511,19 +523,23 @@ def makeOGfile():
     if not os.path.isdir("figures/og"):
         os.mkdir("figures/og")
 
-def plotOGimages(waiting_file, bed_file):
+def plotOGimages(waiting_file, bed_file, covid_file):
     makeOGfile()
     
     # Load data
     waiting_data = np.load(waiting_file, allow_pickle=True)
     bed_data = np.load(bed_file, allow_pickle=True)
+    covid_data = np.load(covid_file, allow_pickle=True)
     
+    # Combine names
     bed_names = proc.capitaliseFirst(bed_data[0])
+    covid_names = proc.capitaliseFirst(covid_data[0])
     allNames = proc.combineNames(waiting_data[0], bed_names)
+    allNames = proc.combineNames(allNames, covid_names)
     
     for name in allNames:
         figName = proc.makeFigureName(name, "og", "png")
-        fig = makeOGimage(name, waiting_data, bed_data)
+        fig = makeOGimage(name, waiting_data, bed_data, covid_data)
         if fig != None:
             fig.savefig("figures/og/{}".format(figName), 
                         bbox_inches = 'tight', pad_inches=0)
@@ -538,7 +554,11 @@ def makeCovidGraph(name, data, legend = True):
     trustDeaths = deaths[names == name].T
     
     # Add data points
-    ax.plot_date(dates, trustDeaths,'b.', alpha = 0.2, ms = 10)
+#     print(name)
+#     print(dates.shape, trustDeaths.shape)
+#     print(trustDeaths)
+#     print("\n\n")
+    ax.plot_date(dates, trustDeaths, 'b.', alpha = 0.2, ms = 10)
     
     # moving average
     ax.plot_date(dates[3:-3],
@@ -581,3 +601,4 @@ def plotCovidData(datafile):
         plt.close(fig)             
            
     print("Done.")
+    

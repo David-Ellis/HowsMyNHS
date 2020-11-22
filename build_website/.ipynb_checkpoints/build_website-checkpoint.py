@@ -473,7 +473,7 @@ def whichChunks(name, ane_names, bed_names, covid_names, all_waiting, all_beds, 
 def generate_meta(name, AnEblock, bedblock):
     '''Creates meta HTML for given trust page'''
     
-    meta_desc = '''Over the last 10 years A&E waiting times have risen and the number of available overnight beds has fallen. Find out here out {} is doing.'''.format(name)
+    meta_desc = '''A&E waiting times have risen and the number of available overnight beds has fallen. Now, thousands of lives have been lost to Covid-19. Find out here out {} is doing.'''.format(name)
         
 
     meta_image = "https://howsmynhs.co.uk/figures/og/" + pd.makeFigureName(name, "og", "png")
