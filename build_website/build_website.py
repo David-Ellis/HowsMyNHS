@@ -380,12 +380,12 @@ def makeCovidBlock(covid_data, name):
     if name == "England":
         first_para = '''<p>
         Since the start of the pandemic, there have been {} reported deaths related to Covid-19 in English hospitals.
-        There {} {} recorded yesterday and {} over the last seven days.
+        There {} {} {} recorded yesterday and {} over the last seven days.
         </p>'''.format(format_number(int(totalEnglandDeaths)), 
                        were_was,
+                       format_number(int(englandDeaths[-1])), 
                        death_deaths,
-                format_number(int(englandDeaths[-1])), 
-                format_number(int(weeksEnglandDeaths)))
+                       format_number(int(weeksEnglandDeaths)))
         
     elif totalTrustDeaths == 0:
         first_para = '''
