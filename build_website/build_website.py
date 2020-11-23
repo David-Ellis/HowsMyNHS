@@ -4,13 +4,11 @@ Module for building the HowsMyNHS website
 
 # standard python packages
 import numpy as np
+from datetime import date
 
 # local packages
 import build_website.news as news
 import build_website.process_data as pd
-
-
-
 
 str2num = np.vectorize(float)
 intvec = np.vectorize(int)
@@ -368,24 +366,30 @@ def makeCovidBlock(covid_data, name):
     imgHTML = "<center><img src=\"{}\" alt=\"{}\"></center>".format(path, 
                     "Number of Covid-19 related deaths for {}.".format(name))
     
+    # todays date
+    todayDate = date.today()
+    today = "{}/{}/{}".format(todayDate.day, todayDate.month, todayDate.year)
+    
     compare_to_total = '''
     <p>
     So far, there have been a total of {} Covid-19 related deaths in English hospitals. 
-    {} of these {} recorded yesterday and {} over the last seven days.
+    {} of these {} recorded yesterday and {} over the last seven days. <span style="color:#999999;">Last updated: {}</span>.
     '''.format(format_number(int(totalEnglandDeaths)), 
                 format_number(int(englandDeaths[-1])), 
                 were_was,
-                format_number(int(weeksEnglandDeaths)))
+                format_number(int(weeksEnglandDeaths)),
+                today)
     
     if name == "England":
         first_para = '''<p>
         Since the start of the pandemic, there have been {} reported deaths related to Covid-19 in English hospitals.
-        There {} {} {} recorded yesterday and {} over the last seven days.
+        There {} {} {} recorded yesterday and {} over the last seven days. <span style="color:#999999;">Last updated: {}</span>.
         </p>'''.format(format_number(int(totalEnglandDeaths)), 
                        were_was,
                        format_number(int(englandDeaths[-1])), 
                        death_deaths,
-                       format_number(int(weeksEnglandDeaths)))
+                       format_number(int(weeksEnglandDeaths)),
+                       today)
         
     elif totalTrustDeaths == 0:
         first_para = '''
