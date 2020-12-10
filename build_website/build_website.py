@@ -769,7 +769,7 @@ tailHTML = '''
 </body>
 </html>'''
 
-brexit_et_al = '''<p>Now, Brexit and an impending trade deal with Trump's US threatens to increase the NHS drug bill from &pound18 billion to as much as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
+brexit_et_al = '''<p>Now, Brexit and an impending trade deal with the US threatens to increase the NHS drug bill from &pound18 billion to as much as <b>&pound45 billion</b> a year while shutting out the nurses, carers and other workers that the health service depends on.</p>
 
             <p><i>Note: Over the past few months A&E attendance across England has fallen by more than 50% as people choose to stay at home to help reduce the pressure on the NHS 
             during the current pandemic.</i></p>
