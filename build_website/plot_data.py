@@ -560,9 +560,9 @@ def makeCovidGraph(name, data, legend = True):
 #     print("\n\n")
     ax.plot_date(dates, trustDeaths, 'b.', alpha = 0.2, ms = 10)
     
-    # moving average
-    ax.plot_date(dates[3:-3],
-                proc.movingAverage(trustDeaths, N=7),
+    # moving average (Missing out most recent 3 points due to incompleteness)
+    ax.plot_date(dates[3:-6],
+                proc.movingAverage(trustDeaths[:-3], N=7),
                  '-', label="Weekly Average", lw=2,
                  color = "#e60000")
     
