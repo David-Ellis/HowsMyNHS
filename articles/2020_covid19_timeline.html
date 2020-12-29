@@ -15,6 +15,8 @@
 <link rel="stylesheet" type="text/css" href="../style.css">
 <link rel="stylesheet" type="text/css" href="../narrow.css">
 <link rel="stylesheet" type="text/css" href="article_style.css">
+<link rel="stylesheet" type="text/css" href="../style/covid2020timeline.css">   
+    
 <!-- meta data-->
 	<meta name="description" content="########################" />
     <!--  General META Tags -->
@@ -29,48 +31,63 @@
     
     <!--  Twitter META Tags -->
     <meta name="twitter:title" content="How's my NHS? - 2020 Covid-19 Timeline">
-    <meta name="twitter:description" content="A&E waiting times have risen and the number of available overnight beds has fallen. Now, thousands of lives have been lost to Covid-19.">
-    <meta name="twitter:image" content="https://howsmynhs.co.uk/figures/og/bedfordshire-hospitals-nhs-foundation-trust-og.png">
+    <meta name="twitter:description" content="###############">
+    <meta name="twitter:image" content="##################">
     <meta name="twitter:card" content="summary_large_image">
     
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 </head>
 <body>
-
+    
 <!--  Navigation bar -->
 <ul id="nav-links">
-  <li><a href="../index.html" class="active">Home</a></li>
-  <li><a href="../articles.html">Articles</a></li>
+  <li><a href="../index.html">Home</a></li>
+  <li><a href="../articles.html" class="active">Articles</a></li>
   <li style="float:right"><a href="../about.html">About</a></li>
 </ul>
 
-<div class="maintitle2">
+<!-- <div class="maintitle2">
 <a href="../index.html"><img src="../logo.png" alt="How's my NHS?"/></a>
-</div>
+</div> -->
     
 <div class = "article">
-<h2 class = "subtitle">2020 Covid-19 Timeline</h2>
+<h2 class = "artileTitle">2020 Covid-19 Timeline</h2>
     
     <p> Introductory paragraphs giving broad overview of the timeline. </p>
     <p> First wave particularly bad.</p>
     
-<div class = "timeline">
     
-<img src="figures/covid_deaths_timeline.svg" alt="Covid-19 Timeline for the United Kingdom" style="float:left;max-width:50%;"/>
+<div class="tltab">
+    <button class="tablinks" onclick="openCity(event, 'deaths')" id="defaultOpen">Deaths</button>
+    <button class="tablinks" onclick="openCity(event, 'cases')" id="defaultOpen">Cases</button>
+    <button class="tablinks" onclick="openCity(event, 'tests')" id="defaultOpen">Tests</button>
+</div>
     
-<ul>
-    <li style = "top:285px;"><span id = "timeline-date">29/01/2020</span>: <a href = "https://www.sciencedaily.com/releases/2020/01/200131114748.htm" target = "_blank">Covid19 genome sequenced</a> by the French non-profit organisation Institut Pasteur.</li>
-    <li style = "top:295px;"><span id = "timeline-date">31/01/2020</span>: <a href = "https://www.bbc.com/news/health-51325192" target = "_blank">First two confirmed cases in the UK</a> found in guests at a hotel in York.</li>
-    <li style = "top:520px;"><span id = "timeline-date">05/03/2020</span>: First official UK death due to Covid-19.</li>
-    <li style = "top:630px;"><span id = "timeline-date">23/03/2020</span>: Lockdown announced.</li>
-</ul>
+<img src="figures/covid_deaths_timeline.svg" alt="Covid-19 Timeline for the United Kingdom" class = "timeline" id = "deaths"/>
+<img src="figures/covid_cases_timeline.svg" alt="Covid-19 Timeline for the United Kingdom" class = "timeline" id = "cases"/>
+<img src="figures/covid_tests_timeline.svg" alt="Covid-19 Timeline for the United Kingdom" class = "timeline" id = "tests"/>
     
 </div>
     
-</div>
-
 </body>
 </html>
 
+<script>
+function openCity(evt, cityName) {
+  var i, timeline, tltab;
+  timeline = document.getElementsByClassName("timeline");
+  for (i = 0; i < timeline.length; i++) {
+    timeline[i].style.display = "none";
+  }
+  tltab = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tltab.length; i++) {
+    tltab[i].className = tltab[i].className.replace(" active", "");
+  }
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+// Get the element with id="defaultOpen" and click on it
+document.getElementById("defaultOpen").click();
+</script>

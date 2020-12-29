@@ -1,0 +1,48 @@
+.timeline {
+    display: none;
+    max-width: 100%;
+    margin: none;
+    border: none;
+    padding: none;
+}
+
+a {
+    color: blue;
+}
+
+/* Style the tab */
+.tltab {
+  border: none;
+  background-color: #e6f0ff;
+  width: 300pt;
+  max-width: 100%;
+  padding: 0px;
+  margin: 0 auto;
+  position: -webkit-sticky; /* Safari */ 
+  position: sticky;
+  top: 0;
+}
+
+/* Style the buttons inside the tab */
+.tablinks {
+  background-color: inherit;
+  float: left;
+  border: 2px solid #99c2ff;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 10px;
+  transition: 0.3s;
+  font-size: 15pt;
+  width: 100pt;
+  max-width: 33.333333%;
+}
+
+/* Change background color of buttons on hover */
+.tltab button:hover {
+  background-color: #66a3ff;
+}
+
+/* Create an active/current tablink class */
+.tltab button.active {
+  background-color: #cce0ff;
+}
