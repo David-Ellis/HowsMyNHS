@@ -2,7 +2,6 @@
     display: none;
     max-width: 100%;
     margin: none;
-    border: none;
     padding: none;
 }
 
@@ -46,3 +45,25 @@ a {
 .tltab button.active {
   background-color: #cce0ff;
 }
+
+#timelineRefs {
+    border: none; 
+    margin-bottom: 20pt;
+    display: none;
+    padding: 5pt;
+}
+
+#toggleRefs{
+    margin: 0 auto; 
+    text-align: center;
+}
+#toggleRefs button{
+    width:100%; 
+    padding-top: 5pt; 
+    padding-bottom: 5pt; 
+    margin-bottom:-1px; 
+    background-color: #f2f2f2; 
+    border: 2px solid #99c2ff;
+    font-size: 12pt;
+}
+

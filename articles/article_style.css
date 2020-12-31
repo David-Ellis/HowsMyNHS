@@ -1,3 +1,7 @@
+body {
+    padding-bottom: 40pt;
+}
+
 .article {
   margin: auto; 
   float: center;
@@ -5,16 +9,46 @@
   width: 100%;
   max-width: 1000px;  
   font-family: Verdana, Geneva, sans-serif;
-  border: 0px solid #ccc;
+  border: none;
 }
 
 .article p {
-    margin-left: 30px;
+    float: center;
+    margin-left: 30pt;
+    margin-right: 30pt;
+}
+
+.article hr {
+    margin-left: 20pt;
+    margin-right: 20pt;
+}
+
+.article a {
+    color: #0066ff;
+    font-style: normal;
+}
+
+.article h3 {
+    margin-left: 20pt;
 }
 
 .artileTitle {
  margin-top:50pt;
- font-size:40px;
+ margin-left: 20pt;
+ font-size:30pt;
  text-shadow: 1px 1px lightgray;
- text-align: center;
+ text-align: left;
+}
+
+.articleTextBlock {
+    width: 500pt;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+#date {
+    margin: 5pt;
+    margin-left: 20pt;
+    margin-top: -20pt;
+    color: gray;
 }
