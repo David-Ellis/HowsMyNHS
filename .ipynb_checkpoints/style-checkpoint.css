@@ -428,6 +428,7 @@ a img {
 
 .headlines p{
     margin-left: 10pt;
+    font-size:14pt;
 }
 
 .headline {
@@ -436,6 +437,7 @@ a img {
     padding-left: 20pt;
     padding-right: 20pt;
     overflow: hidden;
+    box-shadow: 2px 2px 10px #a6ccf2;
 }
 
 .headline h3{

@@ -14,8 +14,8 @@ body {
 
 .article p {
     float: center;
-    margin-left: 30pt;
-    margin-right: 30pt;
+    margin-left: 10pt;
+    margin-right: 10pt;
 }
 
 .article hr {
@@ -29,11 +29,11 @@ body {
 }
 
 .article h3 {
-    margin-left: 20pt;
+    margin-left: 0pt;
 }
 
 .artileTitle {
- margin-top:50pt;
+ margin-top:30pt;
  margin-left: 20pt;
  font-size:30pt;
  text-shadow: 1px 1px lightgray;
@@ -41,7 +41,7 @@ body {
 }
 
 .articleTextBlock {
-    width: 500pt;
+    width: 450pt;
     max-width: 90%;
     margin: 0 auto;
 }
