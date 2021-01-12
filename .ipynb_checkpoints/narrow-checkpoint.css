@@ -1,4 +1,12 @@
 @media screen and (max-width: 800px) {
+    .maintitle2 {
+        width: 60%;
+        margin: 10 auto 0 auto;
+    }
+}
+
+
+@media screen and (max-width: 500px) {
     
     #coming-soon {
         max-width: 80%;
@@ -18,8 +26,9 @@
     
     .subtitle{
         padding-top: 20px;
+        font-size:25pt;
     }
-    
+
     .maintitle2 {
         display: None;
     }
@@ -38,6 +47,11 @@
         font-size:22px;
         background-size: 20px;
         padding: 10px 18px 12px 50px; /
+    }
+    
+    #nav-links a { 
+        padding: 14px 14px;
+        font-size:20px;
     }
     
 }

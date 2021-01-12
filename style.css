@@ -14,7 +14,6 @@ body {
   padding: 0;
   overflow: hidden;
   background-color: #000099;
-  font-size:22px;
   box-shadow: 2px 2px 10px grey;
 }
 
@@ -28,6 +27,7 @@ body {
   display: block;
   text-align: center;
   padding: 16px 18px;
+  font-size:22px;
   text-decoration: none;
   margin: 0;
 }
@@ -103,9 +103,7 @@ a:link {
 }
 
 .maintitle{
- text-align: center;
  margin-top: 50px;
- color: black;
  margin-bottom: 10px;
 }
 
@@ -153,7 +151,7 @@ a {
 
 .subtitle{
  margin-top:0px;
- font-size:40px;
+ font-size:30pt;
  text-shadow: 1px 1px lightgray;
  text-align: center;
 }

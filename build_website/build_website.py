@@ -559,9 +559,9 @@ def build_trust_pages(waiting_data, beds_data, covid_data, news_file):
             
             
             tab_HTML = '<div class="tab">' + \
-            "<button class=\"tablinks\" onclick=\"openCity(event, 'AnE')\" id=\"defaultOpen\">A&E Waiting Times</button>"*AnEblock + \
-            "<button class=\"tablinks\" onclick=\"openCity(event, 'beds')\" id=\"defaultOpen\">Number of Beds</button>"*bedblock + \
-            "<button class=\"tablinks\" onclick=\"openCity(event, 'covid')\" id=\"defaultOpen\">Covid-19 Deaths</button>"*covidblock + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'AnE')\" id=\"defaultOpen\">A&E</button>"*AnEblock + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'beds')\" id=\"defaultOpen\">Beds</button>"*bedblock + \
+            "<button class=\"tablinks\" onclick=\"openCity(event, 'covid')\" id=\"defaultOpen\">Covid-19</button>"*covidblock + \
             "<button class=\"tablinks\" onclick=\"openCity(event, 'news')\" id=\"defaultOpen\">News</button></div>" 
             
             
