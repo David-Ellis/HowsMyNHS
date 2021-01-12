@@ -655,8 +655,8 @@ homeHTML1 = '''
     <meta name="twitter:card" content="summary_large_image">
     
     <link href="favicon.png" rel="icon" type="image/x-icon" />
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" type="text/css" href="narrow.css">
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+    <link rel="stylesheet" type="text/css" href="style/narrow.css">
 </head>
 <body>
 
@@ -744,8 +744,8 @@ headHTML1 = '''
 
 headHTML2 ='''<title>How's my NHS? - {} [Official Data]</title>
 <link href="../favicon.png" rel="icon" type="image/x-icon" />
-<link rel="stylesheet" type="text/css" href="../style.css">
-<link rel="stylesheet" type="text/css" href="../narrow.css">
+<link rel="stylesheet" type="text/css" href="../style/style.css">
+<link rel="stylesheet" type="text/css" href="../style/narrow.css">
 <!-- meta data-->
 {}
 
