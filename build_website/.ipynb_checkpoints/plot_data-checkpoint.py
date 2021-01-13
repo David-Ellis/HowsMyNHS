@@ -524,6 +524,8 @@ def makeOGfile():
         os.mkdir("figures/og")
 
 def plotOGimages(waiting_file, bed_file, covid_file):
+    print("Generating OG images ...", end = " ")
+    
     makeOGfile()
     
     # Load data
@@ -544,7 +546,7 @@ def plotOGimages(waiting_file, bed_file, covid_file):
             fig.savefig("figures/og/{}".format(figName), 
                         bbox_inches = 'tight', pad_inches=0)
             plt.close(fig)
-
+    print("Done.")
             
 def makeCovidGraph(name, data, legend = True):
     fig  = plt.figure(figsize=(6,4))
