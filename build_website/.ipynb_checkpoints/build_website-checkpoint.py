@@ -97,7 +97,7 @@ def MakeHomepage(waiting_data, bed_data):
     hospitalLinks = ''.join(hospitalLinksList)
     file = open("index.html", "w") 
 
-    file.write(''.join([homeHTML1, hospitalLinks, homeHTML2])) 
+    file.write(''.join([homeHTML1, hospitalLinks, homeHTML2, footer])) 
  
     file.close() 
     
@@ -580,7 +580,7 @@ def build_trust_pages(waiting_data, beds_data, covid_data, news_file):
             supTextHTML += "</div>\n"
             
             file.write(''.join([headHTML1,headHTML2.format(name, meta_HTML),subTitleHTML,tab_HTML,
-                                supTextHTML,tailHTML, tab_script]))
+                                supTextHTML,footer2, tab_script]))
             file.close() 
     print("Done.")
     
@@ -718,9 +718,6 @@ function myFunction() {
     }
 }
 </script>
-
-</body>
-</html>
 ''' 
 
 #####################################################################################################
@@ -764,6 +761,51 @@ headHTML2 ='''<title>How's my NHS? - {} [Official Data]</title>
 <div class="maintitle2">
 <a href="../index.html"><img src="../logo.png" alt="How's my NHS?"/></a>
 </div>'''
+
+
+footer = '''
+<div id = "footer">
+<h3>Follow Us</h3>
+
+<a href = "https://www.facebook.com/HowsMyNHS" target = "_blank">
+<img src = "followLinks/facebook_hover.png" alt = "Facebook follow link">
+</a>
+
+<a href = "https://twitter.com/HowsMyNHS" target = "_blank">
+<img src = "followLinks/twitter_hover.png" alt = "Twitter follow link">
+</a>
+
+<a href = "https://www.instagram.com/howsmynhs/" target = "_blank">
+<img src = "followLinks/insta_hover.png" alt = "Instagram follow link">
+</a>
+
+<div>
+
+</body>
+</html>
+'''
+
+footer2 = '''
+<div id = "footer">
+<h3>Follow Us</h3>
+
+<a href = "https://www.facebook.com/HowsMyNHS" target = "_blank">
+<img src = "../followLinks/facebook_hover.png" alt = "Facebook follow link">
+</a>
+
+<a href = "https://twitter.com/HowsMyNHS" target = "_blank">
+<img src = "../followLinks/twitter_hover.png" alt = "Twitter follow link">
+</a>
+
+<a href = "https://www.instagram.com/howsmynhs/" target = "_blank">
+<img src = "../followLinks/insta_hover.png" alt = "Instagram follow link">
+</a>
+
+<div>
+
+</body>
+</html>
+'''
 
 tailHTML = '''
 </body>

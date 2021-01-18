@@ -276,7 +276,7 @@ a img {
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
-  margin-bottom: 50px;
+  margin-bottom: 10pt;
 }
 
 .tabcontent a {
@@ -440,4 +440,38 @@ a img {
 
 .headline h3{
     text-decoration: underline;
+}
+
+
+#footer {
+    margin: 0 auto;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: #b3b3b3;
+    padding: 0pt;
+    padding-top:30pt;
+    text-align: center;
+    padding-bottom: 20pt;
+}
+
+#footer h3{
+    font-size:16pt;
+}
+
+#footer a{
+	color: #b3b3b3;
+}
+
+#footer img{
+    width:40pt;
+    padding:0 10pt 0 10pt;
+    -webkit-filter: grayscale(1);
+    filter: grayscale(1);
+}
+
+#footer img:hover {
+    transition: 0.5s ease;
+    -webkit-filter: grayscale(0);
+    filter: none;
 }
