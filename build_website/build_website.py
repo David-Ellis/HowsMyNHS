@@ -73,14 +73,14 @@ def MakeHomepage(waiting_data, bed_data):
     names2 = pd.capitaliseFirst(names2)
     
     allNames = pd.combineNames(names1, names2)
-    
+    #print(type(allNames[0]))
     # Make list of hospital names
     hospitalLinksList = []
     for i, name in enumerate(allNames):
         # Check if the trust is in contained in the values of merged_trust
         # i.e. is it an old trust which has since merged into something else.
         oldTrust = name in pd.get_all_dict_values(mergered_trusts)
-        if type(name) == str and not oldTrust:
+        if not oldTrust:
             ane_points, bed_points = 0, 0
             merged = name in mergered_trusts.keys()
             

@@ -85,7 +85,10 @@ def combineAnEData(allData, allNames, merged_trust, mergered_trusts):
     # initite total and mask
     totalData = np.zeros(len(allData[0,:]), dtype = object)
     
-    newTrustData = allData[allNames == merged_trust][0]
+    try:
+        newTrustData = allData[allNames == merged_trust][0]
+    except:
+        raise Exception("Couldn't find merged Trust: {}".format(merged_trust))
     
     newTrustMask = np.asarray(newTrustData != "-")
     
