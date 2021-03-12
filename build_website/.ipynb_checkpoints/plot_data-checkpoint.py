@@ -196,11 +196,12 @@ def plotWaitingData(data):
         mask = waiting[i,:] != "-"
 
         #print(sum(mask))
-        check1 = type(name) == str
+        check1 = type(name) == np.str_
         check2 = name not in oldTrusts
         check3 = sum(mask)>=10 or name in mergered_trusts.keys()
-        
+
         if check1 and check2 and check3:
+            
             figName = proc.makeFigureName(name, "waiting", "svg")
             
             fig = makeAnEgraph(name, NHSdata, legend = True)
