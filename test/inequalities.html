@@ -1,0 +1,103 @@
+<html>
+<head>
+
+<title>New Dimension Academy: GCSE Maths - Number</title>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script src="general.js"></script>
+<script src="inequalities.js"></script>
+<script src="myMaths.js"></script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+<link rel="stylesheet" type="text/css" href="mainstyle.css">
+<link rel="stylesheet" type="text/css" href="gcse-maths.css">
+</head>
+
+<body>
+
+
+<div id = "header">
+<h1>ND Academy</h1>
+<a href="../../index.html">
+<img id = "logo" src="logo.png" alt="David Ellis">
+</a>
+</div>
+<div id = "main_box">
+
+<h2><a href = "../gcse-maths.html">GCSE Maths</a> - Inequalities</h2>
+
+<div id = "video_soon">
+	<p> Video coming soon! </br> &#9658; </p>
+</div>
+
+<div class="subbox">
+<h3>Ordering numbers</h3>
+<span  id="more1" style = "display: inline;">
+
+<p>Put the following sequences of numbers into order:</p>
+
+<p id="sortProbs" class = "problems"> </p>
+<p id="sortAns" class = "problems"> </p>
+
+<script>let sortProbs = new ProblemGroup('sortProbs', 'sortAns', sortProblem, [[5,0,0,0],[3,2,0,0],[2,1,2,0], [1,1,2,1], [1,0,2,2]])</script>
+
+<div class="buttonWrapper">
+<button onclick="sortProbs.showAnswers();MathJax.typeset();" class = "probButton">Show Answers</button>
+<button onclick="sortProbs.refreshAll();MathJax.typeset();" class = "probButton">New Problems</button>
+</div>
+
+</span>
+<button onclick="readMore('more1','myBtn1')" id="myBtn1", class="dropdown">^</button>
+</div>
+
+<div class="subbox">
+<h3>Using the symbols: $= \ne < > \ge \le$</h3>
+<span  id="more2" style = "display: inline;">
+
+<p>Convert these sentences into inequality equations using the symbols $= \ne < > \ge \le$: </p>
+<p id="symProbs" class = "problems"> </p>
+<p id="symAns" class = "problems"> </p>
+
+<script>let symProbs = new ProblemGroup('symProbs', 'symAns', usingEqSyms, [[],[],[], [], []])</script>
+
+<div class="buttonWrapper">
+<button onclick="symProbs.showAnswers();MathJax.typeset();" class = "probButton">Show Answers</button>
+<button onclick="symProbs.refreshAll();MathJax.typeset();" class = "probButton">New Problems</button>
+</div>
+
+</span>
+<button onclick="readMore('more2','myBtn2')" id="myBtn2", class="dropdown">^</button>
+</div>
+
+<div class="subbox">
+<h3>Simplifying expressions</h3>
+<span  id="more3" style = "display: inline;">
+
+<p>Simplify the following inequality equations: </p>
+<p id="simpProbs" class = "problems"> </p>
+<p id="simpAns" class = "problems"> </p>
+
+<script>let simpProbs = new ProblemGroup('simpProbs', 'simpAns', simpEqSyms, [[1,0,0,1],[1,0,1,1],[1,1,0,1],[1,1,1,1],[1,1,1,1]])</script>
+
+<div class="buttonWrapper">
+<button onclick="simpProbs.showAnswers();MathJax.typeset();" class = "probButton">Show Answers</button>
+<button onclick="simpProbs.refreshAll();MathJax.typeset();" class = "probButton">New Problems</button>
+</div>
+
+</span>
+<button onclick="readMore('more3','myBtn3')" id="myBtn3", class="dropdown">^</button>
+</div>
+
+</div>
+
+<!-- Make sure MathJax has been applied -->
+<script>setTimeout(() => {MathJax.typeset();}, 1000);</script>
+</body>
+</html>

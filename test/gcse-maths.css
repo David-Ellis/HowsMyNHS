@@ -1,0 +1,33 @@
+/*dropdown button styling*/
+.dropdown{
+	width: 100%;
+	background-color: #ffb3d9;
+	border-style: none;
+	border-color: #262626;
+	border-width: 2px;
+	padding: 5px 32px;
+	text-align: center;
+	text-decoration: none;
+	font-weight:bold;
+	display: inline-block;
+	color: #262626;
+}
+
+.links li{
+	padding:3pt;
+	font-size:14pt;
+}
+
+.buttonWrapper {
+	width:100%;
+	text-align:center;
+	margin-top:1em;
+}
+
+.probButton {
+	background-color: pink;
+	font-size: 1.2em;
+	padding:0.3em;
+	margin: 0.4em;
+	border-radius: 0.2em;
+}
