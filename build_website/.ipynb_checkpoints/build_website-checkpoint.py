@@ -439,7 +439,6 @@ def whichChunks(name, ane_names, bed_names, covid_names, all_waiting, all_beds, 
         ane_points = len(attendence[attendence != "-"])
         if ane_points >= 10:
             ane_block = True
-            
     # if trust is made from merger, check the old trusts
     if name in mergered_trusts.keys():
         for oldTrust in mergered_trusts[name]:
@@ -537,9 +536,10 @@ def build_trust_pages(waiting_data, beds_data, covid_data, news_file):
     # list of old trusts
     oldTrusts = pd.get_all_dict_values(mergered_trusts)
     for i, name in enumerate(allNames):
+        
         #print(name)
         AnEblock, bedblock, covidblock = whichChunks(name, names1, names2, 
-                                                     names3, attendance, beds, covid_deaths)
+                                                     names3, waiting, beds, covid_deaths)
         
         if (AnEblock or bedblock or covidblock) and (name not in oldTrusts):
             

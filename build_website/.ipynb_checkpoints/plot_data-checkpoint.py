@@ -187,7 +187,7 @@ def plotWaitingData(data):
     
     names, dates, _, waiting = NHSdata
     dates = proc.dates2num(dates)
-    
+    #print(names)
     ### Plot and save the data ###
     
     # List of old trusts which have since merged into something else
@@ -199,7 +199,7 @@ def plotWaitingData(data):
         check1 = type(name) == np.str_
         check2 = name not in oldTrusts
         check3 = sum(mask)>=10 or name in mergered_trusts.keys()
-
+        
         if check1 and check2 and check3:
             
             figName = proc.makeFigureName(name, "waiting", "svg")
@@ -555,12 +555,8 @@ def makeCovidGraph(name, data, legend = True):
       
     names, dates, deaths = data
     trustDeaths = deaths[names == name].T
-    
+
     # Add data points
-#     print(name)
-#     print(dates.shape, trustDeaths.shape)
-#     print(trustDeaths)
-#     print("\n\n")
     ax.plot_date(dates, trustDeaths, 'b.', alpha = 0.2, ms = 10)
     
     # moving average (Missing out most recent 3 points due to incompleteness)
